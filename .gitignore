@@ -1,0 +1,21 @@
+# Secrets
+.env
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local runtime data
+data/cache/
+data/runtime/
+data/sandbox/*.csv
+!data/sandbox/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Closeout: month-end reconciliation for PayPal sellers</title>
+  <meta name="description" content="Closeout checks every PayPal transaction against your books, explains what doesn't match in plain English, and fixes it with your approval.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231C2836'/%3E%3Cpath d='M8 17.5l5 5L24.5 9' fill='none' stroke='%23F7DD4A' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="brand">
+      <svg class="brand-tick" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 17.5l6.5 6.5L26 8"/></svg>
+      <span class="brand-name">Closeout</span>
+    </div>
+    <div class="masthead-controls">
+      <div class="source-switch" role="radiogroup" aria-label="Data source" id="sourceSwitch"></div>
+      <span class="month-label" id="monthLabel"></span>
+      <button class="btn btn-ink" id="runBtn" type="button">Run the close</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-live="polite">
+      <h1 id="heroTitle">Checking your PayPal month&hellip;</h1>
+      <p class="hero-sub" id="heroSub"></p>
+      <div class="note" id="aiNote">
+        <p class="note-text" id="aiSummary"></p>
+        <p class="note-source" id="aiSource"></p>
+      </div>
+    </section>
+
+    <section class="tally" aria-label="Month totals">
+      <dl id="tally"></dl>
+    </section>
+
+    <div class="workspace">
+      <section class="ledger" aria-labelledby="ledgerTitle">
+        <div class="panel-head">
+          <h2 id="ledgerTitle">Ledger</h2>
+          <div class="ledger-tools">
+            <div class="filter-switch" role="radiogroup" aria-label="Show rows" id="filterSwitch"></div>
+            <label class="search">
+              <span class="visually-hidden">Search the ledger</span>
+              <input type="search" id="search" placeholder="Search customer, order or ID" autocomplete="off">
+            </label>
+            <button class="btn btn-quiet" id="exportBtn" type="button">Export CSV</button>
+          </div>
+        </div>
+        <div id="grid" class="grid"></div>
+      </section>
+
+      <aside class="review" aria-labelledby="reviewTitle">
+        <div id="reviewList">
+          <div class="panel-head">
+            <h2 id="reviewTitle">To review</h2>
+            <span class="progress" id="reviewProgress"></span>
+          </div>
+          <ol class="issue-list" id="issueList"></ol>
+        </div>
+        <article class="issue-detail" id="issueDetail" hidden></article>
+      </aside>
+    </div>
+
+    <section class="lower">
+      <div class="ask" aria-labelledby="askTitle">
+        <h2 id="askTitle">Ask about this month</h2>
+        <form id="askForm" class="ask-form">
+          <label class="visually-hidden" for="askInput">Your question</label>
+          <input id="askInput" type="text" maxlength="300" placeholder="Why is my bank transfer lower than my sales?" autocomplete="off">
+          <button class="btn btn-ink" type="submit">Ask</button>
+        </form>
+        <div class="suggestions" id="suggestions"></div>
+        <div class="answer" id="answer" aria-live="polite" hidden></div>
+      </div>
+      <div class="activity" aria-labelledby="activityTitle">
+        <div class="panel-head">
+          <h2 id="activityTitle">Activity</h2>
+          <a class="link" id="adjustmentsLink" href="/api/adjustments.csv" hidden>Download adjustments for your bookkeeper</a>
+        </div>
+        <ol class="activity-list" id="activityList"><li class="empty">Nothing approved yet. Every fix waits for your OK.</li></ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Closeout reconciles PayPal Transaction Search and Invoicing data against your order records. The demo month is a fictional shop; every name and ID in it is made up.</p>
+  </footer>
+
+  <dialog id="actionDialog" aria-labelledby="dialogTitle">
+    <form method="dialog" class="dialog-body" id="dialogForm">
+      <h2 id="dialogTitle"></h2>
+      <p class="dialog-mode" id="dialogMode"></p>
+      <ul class="dialog-lines" id="dialogLines"></ul>
+      <div id="dialogJournal"></div>
+      <div class="dialog-message" id="dialogMessageWrap" hidden>
+        <label for="dialogMessage">Note to the customer</label>
+        <textarea id="dialogMessage" rows="5"></textarea>
+        <span class="counter" id="dialogCounter"></span>
+      </div>
+      <p class="dialog-api" id="dialogApi" hidden></p>
+      <p class="dialog-error" id="dialogError" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button class="btn btn-quiet" value="cancel" type="submit" formnovalidate>Cancel</button>
+        <button class="btn btn-ink" id="dialogConfirm" type="button"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/static/vendor/ag-grid-community.min.js"></script>
+  <script src="/static/app.js" type="module"></script>
+</body>
+</html>

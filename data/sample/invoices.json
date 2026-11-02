@@ -1,0 +1,1278 @@
+{
+ "items": [
+  {
+   "id": "INV2-U77M-UDF1-5L7B-GVWE",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-013",
+    "invoice_date": "2026-10-12",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-27"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Brightwater Spa",
+      "name": {
+       "given_name": "Mason",
+       "surname": "Edwards"
+      },
+      "email_address": "front@brightwater.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "465.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "465.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "S32V1N19W7L8345HY",
+      "payment_date": "2026-10-24",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "465.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-3457-WPAR-3TXS-EFV2",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-014",
+    "invoice_date": "2026-10-16",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-31"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Fernwood General Store",
+      "name": {
+       "given_name": "Ingrid",
+       "surname": "Howard"
+      },
+      "email_address": "orders@fernwood.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "540.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "540.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "YKMG5XKG51AW7HU9C",
+      "payment_date": "2026-10-31",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "540.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-4DJG-TFX0-GMA6-T7XJ",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-015",
+    "invoice_date": "2026-10-09",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-24"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Little Wren Books & Gifts",
+      "name": {
+       "given_name": "Mia",
+       "surname": "Smith"
+      },
+      "email_address": "hello@littlewren.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "395.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "395.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "GMGFH08P8KTW298C8",
+      "payment_date": "2026-10-26",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "395.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-SXTL-LMRL-49LG-FSE0",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-016",
+    "invoice_date": "2026-10-04",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-19"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Little Wren Books & Gifts",
+      "name": {
+       "given_name": "Priyanka",
+       "surname": "Roberts"
+      },
+      "email_address": "hello@littlewren.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "585.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "585.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "PY8Y99DD56RXEKM7F",
+      "payment_date": "2026-10-07",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "585.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-D0RR-R121-74H5-TUJM",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-017",
+    "invoice_date": "2026-10-14",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_30",
+     "due_date": "2026-11-13"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Fernwood General Store",
+      "name": {
+       "given_name": "Ava",
+       "surname": "Rivera"
+      },
+      "email_address": "orders@fernwood.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "860.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "860.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "DN5XYHSJ4VFHP1488",
+      "payment_date": "2026-10-18",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "860.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-0NFS-STFY-8NJL-5HSD",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-018",
+    "invoice_date": "2026-10-04",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-19"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Maple Row Mercantile",
+      "name": {
+       "given_name": "Ethan",
+       "surname": "Collins"
+      },
+      "email_address": "orders@maplerow.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "860.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "860.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "1ERMDU066TM70LXVK",
+      "payment_date": "2026-10-11",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "860.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-KSYX-UCSV-WFWU-LL21",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-019",
+    "invoice_date": "2026-10-09",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_30",
+     "due_date": "2026-11-08"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Quill & Ember Stationers",
+      "name": {
+       "given_name": "Dylan",
+       "surname": "Howard"
+      },
+      "email_address": "orders@quillember.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "680.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "680.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "G0F2K3WBN1236DUJL",
+      "payment_date": "2026-10-14",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "680.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-JBSC-JRB1-J7T3-NRF6",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-020",
+    "invoice_date": "2026-10-17",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-11-01"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Harborlight Home",
+      "name": {
+       "given_name": "Clara",
+       "surname": "Patel"
+      },
+      "email_address": "buying@harborlight.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "790.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "790.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "CDRUJNCT2YJAPSJ07",
+      "payment_date": "2026-10-30",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "790.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-HUGN-VEM7-XS00-MCD7",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-021",
+    "invoice_date": "2026-10-18",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_30",
+     "due_date": "2026-11-17"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Fernwood General Store",
+      "name": {
+       "given_name": "Clara",
+       "surname": "Hill"
+      },
+      "email_address": "orders@fernwood.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "315.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "315.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "U99EGVDH5J695DN5K",
+      "payment_date": "2026-10-26",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "315.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-VGUD-84F9-X1C0-1TC1",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-022",
+    "invoice_date": "2026-10-16",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_30",
+     "due_date": "2026-11-15"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Tamarack Trading Post",
+      "name": {
+       "given_name": "Amelia",
+       "surname": "Roberts"
+      },
+      "email_address": "orders@tamarack.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "395.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "395.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "V36XC78ULVRYJNLPS",
+      "payment_date": "2026-10-18",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "395.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-VE3J-X4NE-9P0B-M86B",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-023",
+    "invoice_date": "2026-10-01",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-16"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Harborlight Home",
+      "name": {
+       "given_name": "Jonah",
+       "surname": "Collins"
+      },
+      "email_address": "buying@harborlight.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "360.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "360.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "BM8T9SPWHL5W3A2F9",
+      "payment_date": "2026-10-10",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "360.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-7UXX-FUDF-FHC3-N088",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-024",
+    "invoice_date": "2026-10-09",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-24"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Harborlight Home",
+      "name": {
+       "given_name": "Wyatt",
+       "surname": "Phillips"
+      },
+      "email_address": "buying@harborlight.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "860.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "860.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "K8PM7A90SP9EV3N9T",
+      "payment_date": "2026-10-19",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "860.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-RTS2-6R89-TH7F-UW2T",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-025",
+    "invoice_date": "2026-10-02",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_30",
+     "due_date": "2026-11-01"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Willowbend Florist",
+      "name": {
+       "given_name": "Nora",
+       "surname": "Evans"
+      },
+      "email_address": "orders@willowbend.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "360.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "360.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "2U5XNDP7JF79VAF6P",
+      "payment_date": "2026-10-22",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "360.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-LJ31-P611-CK3K-3TVM",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-026",
+    "invoice_date": "2026-10-04",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_30",
+     "due_date": "2026-11-03"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Little Wren Books & Gifts",
+      "name": {
+       "given_name": "Caleb",
+       "surname": "Wilson"
+      },
+      "email_address": "hello@littlewren.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "585.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "585.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "PV3T0M5EVNJBN9HBF",
+      "payment_date": "2026-10-19",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "585.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-V1U4-XT51-KC8F-Y44L",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-027",
+    "invoice_date": "2026-10-14",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-29"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Northfield Co-op",
+      "name": {
+       "given_name": "Caleb",
+       "surname": "Morris"
+      },
+      "email_address": "purchasing@northfield.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "240.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "240.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "W4FC6TGRMF4LGP808",
+      "payment_date": "2026-10-17",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "240.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-F83U-Y34R-W4FL-V6XW",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-028",
+    "invoice_date": "2026-10-18",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-11-02"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Northfield Co-op",
+      "name": {
+       "given_name": "Jack",
+       "surname": "Cooper"
+      },
+      "email_address": "purchasing@northfield.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "585.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "585.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "MHX35METS936U33RW",
+      "payment_date": "2026-10-31",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "585.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-HF7J-TKAA-3Y8M-6KVK",
+   "status": "PARTIALLY_PAID",
+   "detail": {
+    "invoice_number": "INV-2026-029",
+    "invoice_date": "2026-10-10",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-25"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Cedar & Sage Boutique",
+      "name": {
+       "given_name": "Logan",
+       "surname": "Johnson"
+      },
+      "email_address": "orders@cedarsage.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "450.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "150.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "300.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "9P45M9HWSY9WYWXCR",
+      "payment_date": "2026-10-18",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "300.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-6DW1-DJ7C-BNWB-G01P",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-030",
+    "invoice_date": "2026-10-06",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-21"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Maple Row Mercantile",
+      "name": {
+       "given_name": "Grace",
+       "surname": "Phillips"
+      },
+      "email_address": "orders@maplerow.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "360.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "360.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "XC2NP6H6EBR9PWTH2",
+      "payment_date": "2026-10-15",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "360.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-FXNH-7VT0-NH2J-X6X3",
+   "status": "SENT",
+   "detail": {
+    "invoice_number": "INV-2026-031",
+    "invoice_date": "2026-10-05",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-20"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Hollow Oak Gift Shop",
+      "name": {
+       "given_name": "Grace",
+       "surname": "Rivera"
+      },
+      "email_address": "owner@hollowoak.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "640.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "640.00"
+   }
+  },
+  {
+   "id": "INV2-PWYE-AR6F-FSGE-JGYU",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-032",
+    "invoice_date": "2026-10-09",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-24"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Northfield Co-op",
+      "name": {
+       "given_name": "Amelia",
+       "surname": "Morris"
+      },
+      "email_address": "purchasing@northfield.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "395.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "395.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "VCHM31K3YST4P6VUT",
+      "payment_date": "2026-10-24",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "395.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-98V0-42K5-RY0H-8MRG",
+   "status": "PAID",
+   "detail": {
+    "invoice_number": "INV-2026-033",
+    "invoice_date": "2026-10-15",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-30"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Quill & Ember Stationers",
+      "name": {
+       "given_name": "Elena",
+       "surname": "Lewis"
+      },
+      "email_address": "orders@quillember.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "790.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "0.00"
+   },
+   "payments": {
+    "paid_amount": {
+     "currency_code": "USD",
+     "value": "790.00"
+    },
+    "transactions": [
+     {
+      "payment_id": "9G0E3XP6YASF45N98",
+      "payment_date": "2026-10-26",
+      "method": "PAYPAL",
+      "type": "PAYPAL",
+      "amount": {
+       "currency_code": "USD",
+       "value": "790.00"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "INV2-DMNX-4113-K2KF-9993",
+   "status": "SENT",
+   "detail": {
+    "invoice_number": "INV-2026-034",
+    "invoice_date": "2026-10-13",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-10-28"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Bluebell Market",
+      "name": {
+       "given_name": "Ava",
+       "surname": "Stewart"
+      },
+      "email_address": "accounts@bluebell.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "385.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "385.00"
+   }
+  },
+  {
+   "id": "INV2-SBDP-V9GB-65UN-LPVM",
+   "status": "SENT",
+   "detail": {
+    "invoice_number": "INV-2026-035",
+    "invoice_date": "2026-10-27",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_15",
+     "due_date": "2026-11-11"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Fernwood General Store",
+      "name": {
+       "given_name": "Theo",
+       "surname": "Campbell"
+      },
+      "email_address": "orders@fernwood.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "310.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "310.00"
+   }
+  },
+  {
+   "id": "INV2-WY8D-14SJ-5B4S-76HA",
+   "status": "SENT",
+   "detail": {
+    "invoice_number": "INV-2026-036",
+    "invoice_date": "2026-10-29",
+    "currency_code": "USD",
+    "payment_term": {
+     "term_type": "NET_30",
+     "due_date": "2026-11-28"
+    },
+    "memo": "Wholesale candle order"
+   },
+   "invoicer": {
+    "business_name": "Larkspur Candle Co.",
+    "email_address": "sales@larkspur.example"
+   },
+   "primary_recipients": [
+    {
+     "billing_info": {
+      "business_name": "Harborlight Home",
+      "name": {
+       "given_name": "Chloe",
+       "surname": "Edwards"
+      },
+      "email_address": "buying@harborlight.example"
+     }
+    }
+   ],
+   "amount": {
+    "currency_code": "USD",
+    "value": "720.00"
+   },
+   "due_amount": {
+    "currency_code": "USD",
+    "value": "720.00"
+   }
+  }
+ ],
+ "total_items": 24,
+ "total_pages": 1
+}
