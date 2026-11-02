@@ -161,3 +161,22 @@ def test_gemini_all_models_busy_raises_clear_error():
     with pytest.raises(LLMError) as err:
         llm.complete_json("sys", "prompt")
     assert "busy" in str(err.value) and "model-b 429" in str(err.value)
+
+
+def test_summary_mentions_sales_waiting_for_paypal():
+    from datetime import date, datetime, timezone
+    from decimal import Decimal
+
+    from app.ai import _summary_facts, template_summary
+    from app.models import Dataset, FeeSchedule, Meta, Order
+
+    meta = Meta("Test Shop", "USD", date(2026, 11, 1), date(2026, 11, 30), date(2026, 11, 2), FeeSchedule(),
+                "paypal", data_through=datetime(2026, 11, 2, 12, 0, tzinfo=timezone.utc))
+    order = Order("O-1", date(2026, 11, 2), "A Buyer", "a@example.com", "web", "O-1", Decimal("24.00"), "USD", "paid")
+    result = reconcile(Dataset(meta, [order], [], []))
+    text = template_summary(result)
+    assert "1 recent sale is still waiting for PayPal" in text
+    assert "ready to close" not in text
+    assert _summary_facts(result)["recent_sales_waiting_for_paypal_to_report"] == 1
+    # The demo month has nothing waiting, so its prompt (and cached AI answer) is unchanged.
+    assert "recent_sales_waiting_for_paypal_to_report" not in _summary_facts(reconcile(load_sample()))

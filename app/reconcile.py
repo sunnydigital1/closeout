@@ -137,6 +137,14 @@ class _Engine:
         self._claim(pays)
 
         if not pays:
+            through = self.meta.data_through
+            # Books record the seller's local date, so compare against PayPal's
+            # refresh time in local time too.
+            if order.book_status == "paid" and through and order.day >= through.astimezone().date():
+                # PayPal's transaction search lags (up to 3 hours). Don't call a sale
+                # missing until PayPal's data covers the day it happened.
+                self._row(order, [], "waiting", note="Waiting for PayPal to report this sale")
+                return
             if order.book_status == "paid":
                 issue = self._issue(
                     "MISSING_PAYMENT",
@@ -645,7 +653,7 @@ class _Engine:
         refunds = sum((t.gross for t in in_ccy if t.kind == "refund"), ZERO)
         chargebacks = sum((t.gross for t in in_ccy if t.kind in ("chargeback", "reversal")), ZERO)
         transfers = sum((t.gross for t in in_ccy if t.kind == "withdrawal"), ZERO)
-        recon_rows = [r for r in self.rows if r.status != "transfer"]
+        recon_rows = [r for r in self.rows if r.status not in ("transfer", "waiting")]
         clean = [r for r in recon_rows if r.status in ("matched", "refunded", "open")]
         rate = (Decimal(len(clean)) * 100 / Decimal(len(recon_rows))) if recon_rows else Decimal("100")
         return Summary(
@@ -660,6 +668,7 @@ class _Engine:
             issue_count=len(self.issues),
             amount_at_risk=money(sum((i.amount_at_risk for i in self.issues), ZERO)),
             match_rate=rate.quantize(Decimal("0.1")),
+            waiting_count=sum(1 for r in self.rows if r.status == "waiting"),
         )
 
 

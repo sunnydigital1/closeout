@@ -244,6 +244,8 @@ h1, h2, h3 { font-family: var(--font); color: var(--ink); }
 .ring-medium path { stroke: var(--amber-ink); }
 .ring-low path { stroke: var(--graphite); }
 .open-mark circle { stroke: var(--graphite); stroke-width: 1.6; stroke-dasharray: 2.4 2.6; }
+.wait-mark circle, .wait-mark path { stroke: var(--graphite); stroke-width: 1.6; }
+.ag-row.row-waiting { color: var(--graphite); }
 .transfer-mark path { stroke: var(--graphite); stroke-width: 1.8; }
 
 .draw-ticks .tick-mark path { animation: draw 0.45s ease-out both; animation-delay: var(--d, 0ms); }

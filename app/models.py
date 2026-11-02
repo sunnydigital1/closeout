@@ -127,6 +127,9 @@ class Meta:
     as_of: date  # the "close date" used for overdue math
     fee_schedule: FeeSchedule
     source: str  # sample | paypal
+    # How current PayPal's transaction search data is (its last_refreshed_datetime).
+    # PayPal can take up to 3 hours to report new payments.
+    data_through: datetime | None = None
 
 
 @dataclass
@@ -201,6 +204,7 @@ class Summary:
     issue_count: int
     amount_at_risk: Decimal
     match_rate: Decimal  # percent
+    waiting_count: int = 0  # sales PayPal hasn't reported yet
 
 
 @dataclass

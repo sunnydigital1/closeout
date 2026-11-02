@@ -303,8 +303,17 @@ def template_summary(result: ReconResult) -> str:
             f"{s.issue_count} items need attention with {fmt_money(s.amount_at_risk)} at stake; "
             f"start with \"{top.title}\" ({fmt_money(top.amount_at_risk)})."
         )
+    elif s.waiting_count:
+        text += "Nothing needs attention so far."
     else:
         text += "Nothing needs attention. You're ready to close the month."
+    if s.waiting_count:
+        n = s.waiting_count
+        it = "it" if n == 1 else "them"
+        text += (
+            f" {n} recent {'sale is' if n == 1 else 'sales are'} still waiting for PayPal to report {it}; "
+            f"run the close again later to check {it}."
+        )
     return text
 
 
@@ -356,7 +365,7 @@ Return: {{"explanations": [{{"id": "...", "explanation": "...", "likely_cause": 
 
 def _summary_facts(result: ReconResult) -> dict:
     s = result.summary
-    return {
+    facts = {
         "month": result.meta.period_start.strftime("%B %Y"),
         "paypal_transactions": s.txn_count,
         "orders_in_books": s.order_count,
@@ -373,12 +382,23 @@ def _summary_facts(result: ReconResult) -> dict:
             {"title": i.title, "severity": i.severity, "amount": fmt_money(i.amount_at_risk)} for i in result.issues
         ],
     }
+    if s.waiting_count:
+        # Recent sales PayPal's transaction search hasn't reported yet (it can lag up to
+        # 3 hours). Not problems, and left out of the percentage above.
+        facts["recent_sales_waiting_for_paypal_to_report"] = s.waiting_count
+    return facts
 
 
 def summary_prompt(result: ReconResult, feedback: str = "") -> str:
+    waiting = (
+        " If recent_sales_waiting_for_paypal_to_report is in FACTS, say briefly that those sales "
+        "will be checked once PayPal reports them; they are not problems."
+        if result.summary.waiting_count
+        else ""
+    )
     return f"""{_context(result)}
 
-Write the month-end summary an owner reads first: max 3 sentences, max 70 words. Say how clean the month is, name the biggest risks by amount, and say what to do first.
+Write the month-end summary an owner reads first: max 3 sentences, max 70 words. Say how clean the month is, name the biggest risks by amount, and say what to do first.{waiting}
 
 FACTS:
 {json.dumps(_summary_facts(result), indent=1)}

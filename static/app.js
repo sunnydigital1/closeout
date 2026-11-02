@@ -101,6 +101,8 @@ const SVG = {
   ring: (sev) =>
     `<svg class="mark ring-mark ring-${sev}" viewBox="0 0 20 20" aria-hidden="true"><path d="M15.6 6.6C14.3 4.3 11.6 3.2 9 3.8 5.7 4.6 3.8 7.9 4.6 11.1c.8 3.2 4 5.1 7.2 4.3 3-.8 4.9-3.7 4.3-6.7-.2-.9-.6-1.8-1.2-2.5"/></svg>`,
   open: () => '<svg class="mark open-mark" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.2" fill="none"/></svg>',
+  wait: () =>
+    '<svg class="mark wait-mark" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.2"/><path d="M10 6.8V10l2.3 1.5"/></svg>',
   transfer: () =>
     '<svg class="mark transfer-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 7.5h11M11.5 4.5l3 3-3 3M16.5 12.5h-11M8.5 9.5l-3 3 3 3"/></svg>',
 };
@@ -130,6 +132,7 @@ function markRenderer(params) {
   if (r.status === 'matched') return SVG.tick('', delay);
   if (r.status === 'refunded') return SVG.tick('is-faint', delay);
   if (r.status === 'open') return SVG.open();
+  if (r.status === 'waiting') return SVG.wait();
   if (r.status === 'transfer') return SVG.transfer();
   return '';
 }
@@ -147,6 +150,7 @@ function findingText(params) {
   if (r.status === 'transfer') return 'Transfer to your bank';
   if (r.status === 'refunded') return r.note || 'Refunded';
   if (r.status === 'open') return r.note || 'Not yet due';
+  if (r.status === 'waiting') return 'Waiting for PayPal';
   return r.note ? `Matched. ${r.note}` : 'Matched';
 }
 
@@ -182,7 +186,7 @@ function createLedger() {
     { headerName: '', colId: 'mark', width: 40, sortable: false, resizable: false, suppressMovable: true, cellRenderer: markRenderer },
     { headerName: 'Date', field: 'day', width: 74, sort: 'asc', valueFormatter: (p) => (p.value ? shortDate(p.value) : '') },
     { headerName: 'Reference', field: 'reference', width: 116, filter: 'agTextColumnFilter' },
-    { headerName: 'Customer', field: 'customer', flex: 1, minWidth: 132, filter: 'agTextColumnFilter', tooltipField: 'customer' },
+    { headerName: 'Customer', field: 'customer', flex: 1, minWidth: 120, filter: 'agTextColumnFilter', tooltipField: 'customer' },
     { headerName: 'Channel', field: 'channel', hide: true, valueFormatter: (p) => CHANNEL[p.value] || p.value || '' },
     { headerName: 'Expected', field: 'expected', type: 'rightAligned', width: 94, valueFormatter: money, filter: 'agNumberColumnFilter' },
     { headerName: 'Received', field: 'received', type: 'rightAligned', width: 94, valueFormatter: money, filter: 'agNumberColumnFilter' },
@@ -194,15 +198,21 @@ function createLedger() {
       cellClassRules: { 'cell-diff-bad': (p) => !p.node.rowPinned && p.value !== null && p.value !== undefined && Math.abs(p.value) >= 0.01 },
     },
     {
-      headerName: 'Finding', colId: 'finding', flex: 1.5, minWidth: 190, valueGetter: findingText, filter: 'agTextColumnFilter',
+      headerName: 'Finding', colId: 'finding', flex: 1.5, minWidth: 170, valueGetter: findingText, filter: 'agTextColumnFilter',
       cellClassRules: { 'cell-finding-issue': (p) => p.data?.status === 'issue' && p.data?.issue_status === 'open' },
-      tooltipValueGetter: (p) => p.data?.issue_title || findingText(p),
+      tooltipValueGetter: (p) => p.data?.issue_title || (p.data?.status === 'waiting' && p.data.note) || findingText(p),
     },
     { headerName: 'PayPal transaction IDs', colId: 'txns', hide: true, valueGetter: (p) => (p.data?.txn_ids || []).join(' ') },
   ];
   state.grid = agGrid.createGrid($('grid'), {
     theme,
     columnDefs,
+    // On narrower laptop screens, drop Net, then Fee (both still in the CSV export)
+    // so the Finding column stays readable without sideways scrolling.
+    onGridSizeChanged: (e) => {
+      e.api.setColumnsVisible(['net'], e.clientWidth >= 984);
+      e.api.setColumnsVisible(['fee'], e.clientWidth >= 892);
+    },
     defaultColDef: { sortable: true, resizable: true },
     rowData: [],
     getRowId: (p) => p.data.id,
@@ -217,6 +227,7 @@ function createLedger() {
       'row-issue': (p) => p.data?.status === 'issue' && p.data?.issue_status === 'open',
       'row-resolved': (p) => p.data?.status === 'issue' && p.data?.issue_status !== 'open',
       'row-transfer': (p) => p.data?.status === 'transfer',
+      'row-waiting': (p) => p.data?.status === 'waiting',
       'row-focus': (p) => Boolean(state.selectedId) && p.data?.issue_id === state.selectedId,
     },
     onRowClicked: (e) => { if (e.data?.issue_id) selectIssue(e.data.issue_id, { fromGrid: true }); },
@@ -277,30 +288,51 @@ function openIssues() {
   return state.data.issues.filter((i) => i.status === 'open');
 }
 
+// PayPal's transaction search can lag new payments by up to 3 hours. Sales it
+// hasn't reported yet are shown as waiting rather than flagged as missing.
+function waitingNote(d) {
+  const n = d.summary.waiting_count || 0;
+  if (!n) return '';
+  let when = '';
+  if (d.meta.data_through) {
+    const t = new Date(d.meta.data_through);
+    const time = t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const sameDay = t.toDateString() === new Date().toDateString();
+    when = ` PayPal's records currently run through ${sameDay ? `${time} today` : `${t.toLocaleDateString([], { month: 'short', day: 'numeric' })}, ${time}`}.`;
+  }
+  const one = n === 1;
+  return ` ${n} recent ${one ? 'sale is' : 'sales are'} waiting for PayPal to report ${one ? 'it' : 'them'}, which can take up to 3 hours.${when}`;
+}
+
+let heroAnim = 0;
+
 function renderHero(animate = false) {
+  const run = ++heroAnim;
   const d = state.data;
   const s = d.summary;
   const open = openIssues();
   const month = d.meta.month_name;
   const atRisk = open.reduce((sum, i) => sum + i.amount_at_risk, 0);
   const title = $('heroTitle');
+  const waiting = waitingNote(d);
   title.classList.remove('is-error');
   $('monthLabel').textContent = `${d.meta.business_name}, ${d.meta.month_label}`;
   if (!open.length) {
-    title.textContent = `${month} is ready to close.`;
-    $('heroSub').textContent = d.issues.length
+    title.textContent = waiting ? `${month} ties out so far.` : `${month} is ready to close.`;
+    $('heroSub').textContent = (d.issues.length
       ? `All ${d.issues.length} items are handled, and the other ${s.matched_count.toLocaleString()} records tie out to PayPal.`
-      : `All ${s.matched_count.toLocaleString()} records tie out to PayPal. Nothing needs your review.`;
+      : `All ${s.matched_count.toLocaleString()} records tie out to PayPal. Nothing needs your review.`) + waiting;
     return;
   }
   const rate = Math.round(s.match_rate);
-  $('heroSub').textContent = `${open.length} ${open.length === 1 ? 'item needs' : 'items need'} your review before you close the month. ${usd(atRisk)} is at stake.`;
+  $('heroSub').textContent = `${open.length} ${open.length === 1 ? 'item needs' : 'items need'} your review before you close the month. ${usd(atRisk)} is at stake.${waiting}`;
   if (!animate || reduceMotion) {
     title.textContent = `${month} is ${rate}% reconciled.`;
     return;
   }
   const start = performance.now();
   const step = (now) => {
+    if (run !== heroAnim) return;
     const t = Math.min(1, (now - start) / 750);
     const eased = 1 - Math.pow(1 - t, 3);
     title.textContent = `${month} is ${Math.round(rate * eased)}% reconciled.`;
@@ -365,11 +397,17 @@ function renderList() {
   $('reviewProgress').textContent = issues.length ? `${handled} of ${issues.length} handled` : '';
   const list = $('issueList');
   if (!issues.length) {
-    list.innerHTML = `<li class="all-clear">${SVG.tick()}<span>Nothing to review. Every record ties out to PayPal.</span></li>`;
+    const waiting = state.data.summary.waiting_count || 0;
+    list.innerHTML = waiting
+      ? `<li class="all-clear">${SVG.wait()}<span>Nothing to review yet. ${waiting} recent ${waiting === 1 ? 'sale is' : 'sales are'} still waiting for PayPal to report ${waiting === 1 ? 'it' : 'them'}.</span></li>`
+      : `<li class="all-clear">${SVG.tick()}<span>Nothing to review. Every record ties out to PayPal.</span></li>`;
     return;
   }
+  const stillWaiting = state.data.summary.waiting_count || 0;
   const done = handled === issues.length
-    ? `<li class="all-clear">${SVG.tick()}<span>Every item is handled. ${esc(state.data.meta.month_name)} is ready to close.</span></li>`
+    ? `<li class="all-clear">${SVG.tick()}<span>Every item is handled. ${stillWaiting
+      ? `${stillWaiting} recent ${stillWaiting === 1 ? 'sale is' : 'sales are'} still waiting for PayPal to report ${stillWaiting === 1 ? 'it' : 'them'}.`
+      : `${esc(state.data.meta.month_name)} is ready to close.`}</span></li>`
     : '';
   list.innerHTML = done + issues
     .map((i) => {
@@ -472,7 +510,11 @@ function setBusy(busy) {
   btn.textContent = busy ? 'Running the close…' : 'Run the close';
 }
 
+let closeRun = 0;
+
 async function runClose(refresh = false) {
+  const run = ++closeRun;
+  heroAnim++;
   setBusy(true);
   state.selectedId = null;
   state.exp = null;
@@ -483,8 +525,11 @@ async function runClose(refresh = false) {
   try {
     const qs = new URLSearchParams({ source: state.source, month: state.month });
     if (refresh) qs.set('refresh', 'true');
-    state.data = await api(`/api/reconcile?${qs}`);
+    const data = await api(`/api/reconcile?${qs}`);
+    if (run !== closeRun) return;
+    state.data = data;
   } catch (err) {
+    if (run !== closeRun) return;
     title.classList.add('is-error');
     title.textContent = err.message;
     $('heroSub').textContent = state.source === 'paypal'

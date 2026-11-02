@@ -46,7 +46,7 @@ To use Claude instead, set `AI_PROVIDER=claude` and `ANTHROPIC_API_KEY`.
    - **Create the wholesale invoices**: four invoices through the Invoicing API (created, sent, and one paid and one partly paid by recorded bank transfer).
    - **Make five or six sales** through real PayPal Checkout. Log in with your sandbox buyer from *Testing Tools → Sandbox Accounts*. Each sale is written to your books, `data/sandbox/orders.csv`.
    - **Create the mistakes**: charge a customer twice, take a payment that never reaches your books, and refund an order in PayPal only.
-4. PayPal's transaction search can take up to three hours to show new payments. Then switch Closeout to **PayPal sandbox** and click **Run the close**. Approved actions call the real PayPal sandbox API with test money.
+4. Switch Closeout to **PayPal sandbox** and click **Run the close**. You don't have to wait: PayPal's transaction search can take up to three hours to report new payments, so Closeout reads how current PayPal's data is and shows sales it hasn't reported yet as *waiting for PayPal* instead of flagging them. Run the close again later to check them. Invoices show up right away. Approved actions call the real PayPal sandbox API with test money.
 
 **Using your own books instead:** put a CSV at `data/sandbox/orders.csv` with columns `order_id, date, customer_name, customer_email, channel (web|invoice), reference, amount, currency, status (paid|invoiced|refunded)`. For checkout orders, `reference` is the order number your store sends to PayPal (as `invoice_id` or `custom_id`); for invoiced orders it's the PayPal invoice number.
 
@@ -104,7 +104,7 @@ app/
 static/          dashboard and test store (vanilla JS + AG Grid Community)
 scripts/         demo-month generator
 data/sample/     the demo month, in PayPal API format
-tests/           46 tests, no network needed
+tests/           50 tests, no network needed
 ```
 
 ## Tests

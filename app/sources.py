@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .config import ROOT, Settings
 from .models import Dataset, FeeSchedule, Meta
-from .normalize import invoices_from_api, orders_from_csv, transactions_from_api
+from .normalize import invoices_from_api, orders_from_csv, parse_paypal_datetime, transactions_from_api
 from .paypal import PayPalClient
 
 SAMPLE_DIR = ROOT / "data" / "sample"
@@ -65,11 +65,19 @@ def load_paypal(settings: Settings, month: str, client: PayPalClient | None = No
     now = datetime.now(timezone.utc)
     if end_dt > now:
         end_dt = now
-    txns = transactions_from_api(client.list_transactions(start_dt, end_dt))
+    raw = client.list_transactions(start_dt, end_dt)
+    txns = transactions_from_api(raw)
+    data_through = None
+    if raw.get("last_refreshed_datetime"):
+        try:
+            data_through = parse_paypal_datetime(raw["last_refreshed_datetime"])
+        except ValueError:
+            data_through = None
     invoices = invoices_from_api(client.list_invoices())
     if not settings.books_csv.exists():
         raise FileNotFoundError(
-            f"Books file not found at {settings.books_csv}. Run scripts/seed_sandbox.py or set BOOKS_CSV."
+            f"Books file not found at {settings.books_csv}. Make some sales in the test store (/store) "
+            f"or set BOOKS_CSV to your own order export."
         )
     orders = [o for o in orders_from_csv(settings.books_csv) if start <= o.day <= end]
     meta = Meta(
@@ -80,5 +88,6 @@ def load_paypal(settings: Settings, month: str, client: PayPalClient | None = No
         as_of=today,
         fee_schedule=_fee_schedule(settings),
         source="paypal",
+        data_through=data_through,
     )
     return Dataset(meta=meta, orders=orders, txns=txns, invoices=invoices)

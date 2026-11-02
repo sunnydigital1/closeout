@@ -164,6 +164,7 @@ def _serialize(result: ReconResult, key: tuple[str, str], scope: str) -> dict:
             "month_name": m.period_start.strftime("%B"),
             "as_of": m.as_of.isoformat(),
             "fee_schedule": m.fee_schedule.describe(),
+            "data_through": m.data_through.isoformat() if m.data_through else None,
         },
         "summary": {
             "txn_count": s.txn_count,
@@ -177,6 +178,7 @@ def _serialize(result: ReconResult, key: tuple[str, str], scope: str) -> dict:
             "issue_count": s.issue_count,
             "amount_at_risk": _num(s.amount_at_risk),
             "match_rate": _num(s.match_rate),
+            "waiting_count": s.waiting_count,
         },
         "rows": rows,
         "issues": [

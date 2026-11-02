@@ -73,6 +73,7 @@ def _meta(**kw):
         as_of=kw.get("as_of", date(2026, 11, 2)),
         fee_schedule=FeeSchedule(),
         source="sample",
+        data_through=kw.get("data_through"),
     )
 
 
@@ -117,6 +118,37 @@ def test_missing_payment_is_flagged():
     ds = Dataset(_meta(), [_order("O-1", "20.00")], [], [])
     result = reconcile(ds)
     assert [i.kind for i in result.issues] == ["MISSING_PAYMENT"]
+
+
+def _lagging_month():
+    # PayPal's transaction search lags new payments (up to 3 hours). Here its data
+    # runs through midday Oct 20, so a sale booked on Oct 20 may not be reported yet.
+    meta = _meta(data_through=datetime(2026, 10, 20, 12, 0, tzinfo=timezone.utc))
+    orders = [_order("O-OK", "25.00", day=8), _order("O-OLD", "20.00", day=12), _order("O-NEW", "30.00", day=20)]
+    return Dataset(meta, orders, [_pay("T1", "25.00", "O-OK", day=8)], [])
+
+
+def test_sale_paypal_has_not_reported_yet_is_waiting_not_missing():
+    result = reconcile(_lagging_month())
+    status = {r.reference: r.status for r in result.rows}
+    assert status == {"O-OK": "matched", "O-OLD": "issue", "O-NEW": "waiting"}
+    # Only the sale PayPal's data already covers is flagged.
+    assert [(i.kind, i.id) for i in result.issues] == [("MISSING_PAYMENT", "MISSING-O-OLD")]
+    assert result.summary.waiting_count == 1
+
+
+def test_waiting_sales_are_left_out_of_the_match_rate():
+    s = reconcile(_lagging_month()).summary
+    assert s.matched_count == 1
+    assert s.match_rate == Decimal("50.0")  # 1 clean of the 2 records PayPal can confirm
+
+
+def test_without_refresh_time_missing_payments_are_still_flagged():
+    ds = _lagging_month()
+    ds.meta.data_through = None
+    result = reconcile(ds)
+    assert sorted(i.id for i in result.issues) == ["MISSING-O-NEW", "MISSING-O-OLD"]
+    assert result.summary.waiting_count == 0
 
 
 def test_amount_mismatch_is_flagged():
