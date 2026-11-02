@@ -343,10 +343,15 @@ function renderAi() {
   }
   summary.className = 'note-text';
   summary.textContent = state.exp.summary || '';
-  if (state.exp.summary_source === 'ai') {
+  source.title = '';
+  if (state.exp.error) {
+    const busy = /busy|unavailable|high demand|50[234]|429/i.test(state.exp.error);
+    const usedAi = Object.values(state.exp.items || {}).some((i) => i.source === 'ai');
+    const what = usedAi ? 'this summary comes' : 'these explanations come';
+    source.innerHTML = `${esc(busy ? `${aiName()} is busy right now` : `${aiName()} couldn't respond`)}, so ${what} from Closeout's rules. <button class="btn-link" type="button" data-retry>Try again</button>`;
+    source.title = state.exp.error;
+  } else if (state.exp.summary_source === 'ai') {
     source.textContent = `Written by ${aiName()} from this month's numbers. Every figure is checked against your PayPal data before it's shown.`;
-  } else if (state.exp.error) {
-    source.textContent = `${aiName()} isn't available right now, so this summary and the explanations come from Closeout's rules. (${state.exp.error.slice(0, 140)})`;
   } else if (!state.config.ai.enabled) {
     source.textContent = 'Generated from your numbers. Add a Gemini API key to get written explanations.';
   } else {
@@ -697,6 +702,11 @@ function wire() {
     }
     const btn = e.target.closest('button[data-action]');
     if (btn) openAction(btn.dataset.action);
+  });
+  $('aiSource').addEventListener('click', (e) => {
+    if (!e.target.closest('[data-retry]')) return;
+    state.exp = null;
+    explain();
   });
   $('dialogConfirm').addEventListener('click', confirmAction);
   $('dialogMessage').addEventListener('input', updateCounter);

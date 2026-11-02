@@ -107,3 +107,57 @@ def test_every_issue_kind_has_a_readable_template(october):
 def test_ask_without_ai_is_honest(october):
     answer = Explainer(None).ask(october, "Why is October short?")
     assert "turned off" in answer["answer"]
+
+
+# --------------------------------------------------------- Gemini fallbacks
+
+def _gemini_with(responses):
+    """A GeminiLLM whose network client is replaced by scripted responses per model."""
+    from types import SimpleNamespace
+
+    from app.ai import GeminiLLM
+
+    calls = []
+
+    def generate_content(model, contents, config):
+        calls.append(model)
+        outcome = responses[model].pop(0)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return SimpleNamespace(text=outcome)
+
+    llm = GeminiLLM.__new__(GeminiLLM)
+    llm._client = SimpleNamespace(models=SimpleNamespace(generate_content=generate_content))
+    llm._models = list(responses)
+    llm.model = llm._models[0]
+    llm.backoff = 0
+    return llm, calls
+
+
+def _busy(code=503):
+    from google.genai import errors
+
+    return errors.ServerError(code, {"error": {"code": code, "message": "high demand", "status": "UNAVAILABLE"}})
+
+
+def test_gemini_retries_then_moves_to_next_model_when_overloaded():
+    llm, calls = _gemini_with({"model-a": [_busy(), _busy()], "model-b": ['{"ok": true}']})
+    assert llm.complete_json("sys", "prompt") == '{"ok": true}'
+    assert calls == ["model-a", "model-a", "model-b"]
+    assert llm.model == "model-b"  # remembered for the next call
+
+
+def test_gemini_recovers_on_retry_of_same_model():
+    llm, calls = _gemini_with({"model-a": [_busy(), '{"ok": 1}'], "model-b": []})
+    assert llm.complete_json("sys", "prompt") == '{"ok": 1}'
+    assert calls == ["model-a", "model-a"]
+
+
+def test_gemini_all_models_busy_raises_clear_error():
+    from google.genai import errors
+
+    quota = errors.ClientError(429, {"error": {"code": 429, "message": "quota", "status": "RESOURCE_EXHAUSTED"}})
+    llm, _ = _gemini_with({"model-a": [_busy(), _busy()], "model-b": [quota]})
+    with pytest.raises(LLMError) as err:
+        llm.complete_json("sys", "prompt")
+    assert "busy" in str(err.value) and "model-b 429" in str(err.value)

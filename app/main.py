@@ -252,6 +252,8 @@ def explain(req: ExplainRequest):
         summary_future = pool.submit(explainer.summarize, result)
         items, error = items_future.result()
         summary, summary_source = summary_future.result()
+    if explainer.enabled and summary_source != "ai" and not error:
+        error = "The AI didn't return a usable summary this time."
     payload = {
         "summary": summary,
         "summary_source": summary_source,
@@ -259,8 +261,11 @@ def explain(req: ExplainRequest):
         "error": error,
         "ai": explainer.describe(),
     }
-    with STATE.lock:
-        STATE.explanations[key] = payload
+    # Keep good results; don't pin a failure, so a page reload or "Try again" retries the AI.
+    succeeded = not error and (summary_source == "ai" or not explainer.enabled)
+    if succeeded:
+        with STATE.lock:
+            STATE.explanations[key] = payload
     return payload
 
 

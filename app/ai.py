@@ -21,13 +21,16 @@ from .models import Issue, ReconResult, fmt_money
 
 log = logging.getLogger("closeout.ai")
 
+# Tried in order. Free-tier capacity and quotas are per model, so when one model is
+# overloaded (503) or out of quota (429) the next one usually answers.
 DEFAULT_GEMINI_MODELS = [
+    "gemini-2.5-flash",
     "gemini-flash-latest",
     "gemini-3.5-flash",
-    "gemini-2.5-flash",
     "gemini-flash-lite-latest",
     "gemini-2.5-flash-lite",
 ]
+TRANSIENT_CODES = {500, 502, 503, 504}
 
 
 class LLMError(RuntimeError):
@@ -45,41 +48,53 @@ class LLM(Protocol):
 class GeminiLLM:
     provider = "gemini"
 
-    def __init__(self, api_key: str, model: str = ""):
+    def __init__(self, api_key: str, model: str = "", backoff: float = 1.5):
         from google import genai  # imported lazily so the app runs without the SDK
+        from google.genai import types
 
-        self._client = genai.Client(api_key=api_key)
+        self._client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=45_000))
         self._models = ([model] if model else []) + [m for m in DEFAULT_GEMINI_MODELS if m != model]
         self.model = self._models[0]
+        self.backoff = backoff
+
+    def _order(self) -> list[str]:
+        """The last model that worked goes first."""
+        return [self.model] + [m for m in self._models if m != self.model]
 
     def complete_json(self, system: str, prompt: str) -> str:
         from google.genai import errors, types
 
-        last_error = None
-        for model in list(self._models):
-            try:
-                resp = self._client.models.generate_content(
-                    model=model,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system,
-                        response_mime_type="application/json",
-                        temperature=0.2,
-                    ),
-                )
-                self.model = model
-                if not resp.text:
-                    raise LLMError("Gemini returned an empty response")
-                return resp.text
-            except errors.APIError as exc:
-                last_error = exc
-                # 404: model name not available; 429: this model's free quota is used up.
-                # Free-tier quotas are per model, so try the next model either way.
-                if exc.code in (404, 429):
-                    log.warning("Gemini model %s unavailable (%s), trying next", model, exc.code)
-                    continue
-                raise LLMError(f"Gemini error {exc.code}: {exc.message}") from exc
-        raise LLMError(f"No Gemini model available ({last_error})")
+        tried: list[str] = []
+        for model in self._order():
+            for attempt in range(2):
+                try:
+                    resp = self._client.models.generate_content(
+                        model=model,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            system_instruction=system,
+                            response_mime_type="application/json",
+                            temperature=0.2,
+                        ),
+                    )
+                    if not resp.text:
+                        raise LLMError(f"Gemini ({model}) returned an empty response")
+                    self.model = model
+                    return resp.text
+                except errors.APIError as exc:
+                    tried.append(f"{model} {exc.code}")
+                    if exc.code in TRANSIENT_CODES and attempt == 0:
+                        # Overloaded: one short pause and retry the same model.
+                        log.warning("Gemini %s busy (%s), retrying once", model, exc.code)
+                        time.sleep(self.backoff)
+                        continue
+                    if exc.code in TRANSIENT_CODES or exc.code in (404, 429):
+                        # Still busy, unknown model name, or this model's free quota is used:
+                        # quotas and capacity are per model, so move on to the next one.
+                        log.warning("Gemini %s unavailable (%s), trying the next model", model, exc.code)
+                        break
+                    raise LLMError(f"Gemini ({model}) error {exc.code}: {exc.message}") from exc
+        raise LLMError(f"Gemini is busy or unavailable right now (tried {', '.join(tried)})")
 
 
 class ClaudeLLM:
