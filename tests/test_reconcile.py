@@ -205,3 +205,29 @@ def test_overdue_partial_payment_is_medium_priority():
     issue = _partial_invoice(date(2026, 10, 25))
     assert issue.severity == "medium" and issue.facts["balance_status"] == "Overdue"
     assert issue.facts["days_overdue"] == 8
+
+
+def _refund(tid, of, amount, day=6):
+    return PayPalTxn(
+        id=tid, event_code="T1107", kind="refund",
+        timestamp=datetime(2026, 10, day, 18, 0, tzinfo=timezone.utc),
+        gross=-Decimal(amount), fee=Decimal("0.70"), currency="USD", status="S", reference_id=of,
+    )
+
+
+def test_customer_charged_twice_is_flagged():
+    pays = [_pay("T1", "20.00", "O-1"), _pay("T2", "20.00", "O-1", day=5)]
+    issue = reconcile(Dataset(_meta(), [_order("O-1", "20.00")], pays, [])).issues[0]
+    assert issue.kind == "DUPLICATE_PAYMENT"
+    assert next(a for a in issue.actions if a.type == "refund_duplicate").params["capture_id"] == "T2"
+
+
+def test_duplicate_that_was_refunded_ties_out():
+    # After the seller refunds the extra payment, the next close should come back clean.
+    txns = [_pay("T1", "20.00", "O-1"), _pay("T2", "20.00", "O-1", day=5), _refund("R2", "T2", "20.00")]
+    result = reconcile(Dataset(_meta(), [_order("O-1", "20.00")], txns, []))
+    assert result.issues == []
+    row = result.rows[0]
+    assert row.status == "matched" and "refunded" in row.note
+    assert row.received == Decimal("20.00") and row.difference == Decimal("0.00")
+    assert set(row.txn_ids) == {"T1", "T2", "R2"}

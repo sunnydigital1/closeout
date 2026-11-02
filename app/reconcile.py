@@ -169,6 +169,13 @@ class _Engine:
             return
 
         if len(pays) > 1:
+            refunds = [f for p in pays for f in self.follow_ups.get(p.id, []) if f.kind == "refund"]
+            kept = sum((t.gross for t in pays + refunds), ZERO)
+            if refunds and order.book_status == "paid" and abs(kept - order.amount) <= PENNY:
+                # Paid twice, and the extra payment has since been refunded: it ties out.
+                refunded = -sum((r.gross for r in refunds), ZERO)
+                self._row(order, pays + refunds, "matched", note=f"Duplicate payment refunded ({fmt_money(refunded)})")
+                return
             self._duplicate(order, pays, row_id)
             return
 
