@@ -66,16 +66,22 @@ class GeminiLLM:
 
         tried: list[str] = []
         for model in self._order():
+            options = dict(
+                system_instruction=system,
+                response_mime_type="application/json",
+                temperature=0.2,
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+            )
+            if model.startswith("gemini-2.5-flash"):
+                # Explaining pre-computed facts needs no reasoning step; skipping
+                # "thinking" cuts the wait from ~20s to a few seconds.
+                options["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
             for attempt in range(2):
                 try:
                     resp = self._client.models.generate_content(
                         model=model,
                         contents=prompt,
-                        config=types.GenerateContentConfig(
-                            system_instruction=system,
-                            response_mime_type="application/json",
-                            temperature=0.2,
-                        ),
+                        config=types.GenerateContentConfig(**options),
                     )
                     if not resp.text:
                         raise LLMError(f"Gemini ({model}) returned an empty response")
