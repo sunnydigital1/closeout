@@ -4,11 +4,12 @@ from __future__ import annotations
 import csv
 import io
 import logging
+import re
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -57,17 +58,33 @@ class _State:
         self.lock = threading.Lock()
         self.results: dict[tuple[str, str], ReconResult] = {}
         self.explanations: dict[tuple[str, str], dict] = {}
-        self.statuses: dict[tuple[str, str, str], str] = {}
+        # (source, month, scope, issue_id) -> open | resolved | reviewed
+        self.statuses: dict[tuple[str, str, str, str], str] = {}
         self.activity: list[dict] = []
-        self.adjustments: list[dict] = []
+        self.adjustments: list[tuple[str, dict]] = []
 
 
 STATE = _State()
+_SESSION_RE = re.compile(r"[^A-Za-z0-9-]")
 
 
 # ------------------------------------------------------------------ helpers
 def _num(value):
     return None if value is None else float(value)
+
+
+def _session(request: Request) -> str:
+    raw = request.headers.get("x-closeout-session") or request.query_params.get("session") or "anon"
+    return _SESSION_RE.sub("", raw)[:64] or "anon"
+
+
+def _scope(source: str, request: Request) -> str:
+    """Demo-month actions belong to one browser; live PayPal actions are shared."""
+    return _session(request) if source == "sample" else "live"
+
+
+def _visible_scopes(request: Request) -> tuple[str, str]:
+    return (_session(request), "live")
 
 
 def _key(source: str, month: str | None) -> tuple[str, str]:
@@ -105,10 +122,10 @@ def _result(source: str, month: str, refresh: bool = False) -> ReconResult:
     return result
 
 
-def _serialize(result: ReconResult, key: tuple[str, str]) -> dict:
+def _serialize(result: ReconResult, key: tuple[str, str], scope: str) -> dict:
     m, s = result.meta, result.summary
     by_issue = {i.id: i for i in result.issues}
-    status = lambda iid: STATE.statuses.get((*key, iid), "open")  # noqa: E731
+    status = lambda iid: STATE.statuses.get((*key, scope, iid), "open")  # noqa: E731
     rows = []
     for r in result.rows:
         issue = by_issue.get(r.issue_id) if r.issue_id else None
@@ -211,10 +228,10 @@ def config():
 
 
 @app.get("/api/reconcile")
-def get_reconcile(source: str = "sample", month: str | None = None, refresh: bool = False):
+def get_reconcile(request: Request, source: str = "sample", month: str | None = None, refresh: bool = False):
     key = _key(source, month)
     result = _result(*key, refresh=refresh)
-    return _serialize(result, key)
+    return _serialize(result, key, _scope(key[0], request))
 
 
 class ExplainRequest(BaseModel):
@@ -294,11 +311,12 @@ def action_preview(req: ActionRequest):
 
 
 @app.post("/api/actions/execute")
-def action_execute(req: ActionRequest):
+def action_execute(req: ActionRequest, request: Request):
     if not req.approved:
         raise HTTPException(400, "Actions only run after you approve them.")
     key, result, issue, action, mode = _issue_and_action(req)
-    status_key = (*key, issue.id)
+    scope = _scope(key[0], request)
+    status_key = (*key, scope, issue.id)
     with STATE.lock:
         current = STATE.statuses.get(status_key, "open")
     if action.moves_money and current == "resolved":
@@ -307,29 +325,32 @@ def action_execute(req: ActionRequest):
         outcome = actions_mod.execute(issue, action, mode, req.message, paypal_client() if mode.live else None)
     except PayPalError as exc:
         raise HTTPException(502, str(exc)) from exc
-    entry = {**outcome, "issue_title": issue.title, "source": key[0], "month": key[1]}
+    entry = {**outcome, "issue_title": issue.title, "source": key[0], "month": key[1], "scope": scope}
     with STATE.lock:
         if outcome.get("issue_status"):
             STATE.statuses[status_key] = outcome["issue_status"]
         STATE.activity.insert(0, entry)
+        del STATE.activity[500:]
         if outcome.get("journal"):
-            STATE.adjustments.append(outcome["journal"])
+            STATE.adjustments.append((scope, outcome["journal"]))
     return {**entry, "issue_status": STATE.statuses.get(status_key, "open")}
 
 
 @app.get("/api/activity")
-def activity():
+def activity(request: Request):
+    scopes = _visible_scopes(request)
     with STATE.lock:
-        return STATE.activity[:100]
+        return [e for e in STATE.activity if e.get("scope") in scopes][:100]
 
 
 @app.get("/api/adjustments.csv")
-def adjustments_csv():
+def adjustments_csv(request: Request):
     buf = io.StringIO()
     writer = csv.writer(buf)
     writer.writerow(["date", "memo", "account", "debit", "credit"])
+    scopes = _visible_scopes(request)
     with STATE.lock:
-        entries = list(STATE.adjustments)
+        entries = [journal for scope, journal in STATE.adjustments if scope in scopes]
     for entry in entries:
         for line in entry["lines"]:
             writer.writerow([entry["date"], entry["memo"], line["account"], line["debit"], line["credit"]])

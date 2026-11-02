@@ -340,6 +340,7 @@ class _Engine:
         if received > ZERO and shortfall <= self.sched.tolerance:
             row = self._row(order, [p] + legs, "matched", note=f"Paid in {p.currency}, converted")
             row.currency = order.currency
+            row.received, row.fee, row.net = None, None, received
             return
         facts = {
             "order": order.reference,
@@ -377,11 +378,14 @@ class _Engine:
             ],
         )
         row = self._row(order, [p] + legs, "issue", issue)
-        # Show what actually landed in book currency.
+        # Gross and fee were in another currency; show what actually landed in book
+        # currency and compare it with the net a normal sale would have produced.
         row.currency = order.currency
-        row.received = order.amount if received else None
-        row.fee = -expected_fee if received else None
+        row.received = None
+        row.fee = None
         row.net = received if received else None
+        row.diff = -shortfall if received else None
+        row.note = f"Paid {fmt_money(p.gross, p.currency)}, converted to {fmt_money(received)}"
 
     def _amount_mismatch(self, order: Order, txns: list[PayPalTxn], row_id: str, got: Decimal, label="payment"):
         diff = got - order.amount
@@ -540,7 +544,9 @@ class _Engine:
                     facts,
                     [reminder, _mark_reviewed()],
                 )
-                self._row(order, pays, "issue", issue)
+                row = self._row(order, pays, "issue", issue)
+                if not pays:
+                    row.diff = -inv.due  # nothing received yet: the whole amount is outstanding
             else:
                 self._row(order, pays, "open", note="Invoice sent, not yet due")
             return

@@ -157,8 +157,17 @@ def parse_json(raw: str) -> dict:
 
 
 # ------------------------------------------------------------------- templates
+_ISO_DAY = re.compile(r"^(\d{4})-(\d{2})-(\d{2})$")
+_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
 def _f(issue: Issue, key: str, default: str = "") -> str:
-    return str(issue.facts.get(key, default))
+    value = str(issue.facts.get(key, default))
+    day = _ISO_DAY.match(value)
+    if day:  # 2026-10-20 -> Oct 20, 2026 (same numbers, so the guardrail still passes)
+        year, month, dom = day.groups()
+        return f"{_MONTHS[int(month) - 1]} {int(dom)}, {year}"
+    return value
 
 
 def template_explanation(issue: Issue, business: str) -> dict:

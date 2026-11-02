@@ -177,9 +177,12 @@ class LedgerRow:
     issue_id: str | None = None
     txn_ids: list[str] = field(default_factory=list)
     note: str | None = None
+    diff: Decimal | None = None  # set when received/expected don't tell the story (e.g. FX)
 
     @property
     def difference(self) -> Decimal | None:
+        if self.diff is not None:
+            return self.diff
         if self.expected is None or self.received is None:
             return None
         return self.received - self.expected
