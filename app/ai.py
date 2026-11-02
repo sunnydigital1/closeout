@@ -360,7 +360,8 @@ def _summary_facts(result: ReconResult) -> dict:
         "month": result.meta.period_start.strftime("%B %Y"),
         "paypal_transactions": s.txn_count,
         "orders_in_books": s.order_count,
-        "reconciled_cleanly_percent": f"{s.match_rate}%",
+        # Share of order records (plus PayPal payments with no order) that tie out exactly.
+        "order_records_that_tie_out_to_paypal_percent": f"{s.match_rate}%",
         "gross_sales": fmt_money(s.sales_gross),
         "paypal_fees": fmt_money(-s.fees),
         "refunds": fmt_money(-s.refunds),
