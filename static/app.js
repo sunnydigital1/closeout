@@ -735,6 +735,7 @@ async function init() {
     $('heroTitle').textContent = `Closeout couldn't start: ${err.message}`;
     return;
   }
+  $('storeLink').hidden = !state.config.store;
   const params = new URLSearchParams(location.search);
   const wanted = params.get('source');
   const paypal = state.config.sources.find((s) => s.id === 'paypal');

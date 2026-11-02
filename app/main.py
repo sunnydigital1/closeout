@@ -21,6 +21,7 @@ from .models import ReconResult
 from .paypal import PayPalClient, PayPalError
 from .reconcile import reconcile
 from .sources import SAMPLE_MONTH, load_paypal, load_sample
+from .store import StoreError, SandboxStore
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("closeout")
@@ -209,9 +210,17 @@ def index():
     return FileResponse(STATIC / "index.html")
 
 
+@app.get("/store", include_in_schema=False)
+def store_page():
+    if not settings.store_enabled:
+        raise HTTPException(404, "The test store is turned off on this server.")
+    return FileResponse(STATIC / "store.html")
+
+
 @app.get("/api/config")
 def config():
     return {
+        "store": settings.store_enabled,
         "sources": [
             {"id": "sample", "label": "Demo month", "month": SAMPLE_MONTH, "available": True},
             {
@@ -364,6 +373,74 @@ def adjustments_csv(request: Request):
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=closeout-adjustments.csv"},
     )
+
+
+# --------------------------------------------------------------- test store
+_store: SandboxStore | None = None
+
+
+def sandbox_store() -> SandboxStore:
+    global _store
+    if not settings.store_enabled:
+        raise HTTPException(404, "The test store is turned off on this server.")
+    if not settings.paypal_configured:
+        raise HTTPException(400, "Add your PayPal sandbox PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET to .env first.")
+    if settings.paypal_env != "sandbox":
+        raise HTTPException(400, "The test store only runs against the PayPal sandbox.")
+    if _store is None:
+        _store = SandboxStore(settings, paypal_client())
+    return _store
+
+
+def _store_call(fn, *args):
+    try:
+        result = fn(*args)
+    except StoreError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    except PayPalError as exc:
+        raise HTTPException(502, str(exc)) from exc
+    # New PayPal activity: make the next sandbox close fetch fresh data.
+    with STATE.lock:
+        for key in [k for k in STATE.results if k[0] == "paypal"]:
+            STATE.results.pop(key, None)
+            STATE.explanations.pop(key, None)
+    return result
+
+
+@app.get("/api/store")
+def store_summary():
+    return sandbox_store().summary()
+
+
+class StoreOrderRequest(BaseModel):
+    scenario: str
+    product_id: str | None = None
+    quantity: int = 1
+    ref: str | None = None
+
+
+@app.post("/api/store/orders")
+def store_create_order(req: StoreOrderRequest):
+    return _store_call(sandbox_store().create_order, req.scenario, req.product_id, req.quantity, req.ref)
+
+
+@app.post("/api/store/orders/{order_id}/capture")
+def store_capture(order_id: str):
+    return _store_call(sandbox_store().capture, order_id)
+
+
+class StoreRefundRequest(BaseModel):
+    ref: str
+
+
+@app.post("/api/store/refund")
+def store_refund(req: StoreRefundRequest):
+    return _store_call(sandbox_store().refund_in_paypal_only, req.ref)
+
+
+@app.post("/api/store/invoices")
+def store_invoices():
+    return _store_call(sandbox_store().create_invoices)
 
 
 @app.exception_handler(Exception)

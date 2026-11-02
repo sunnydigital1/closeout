@@ -6,6 +6,10 @@
                                       POST /v2/invoicing/invoices/{id}/remind
 * Payments v2 (refunds)               POST /v2/payments/captures/{id}/refund
 * Disputes                            GET  /v1/customer/disputes
+
+Used only by the sandbox test store (to create realistic test activity):
+* Orders v2                           POST /v2/checkout/orders, /{id}/capture
+* Invoicing v2                        POST /v2/invoicing/invoices, /{id}/send, /{id}/payments
 """
 from __future__ import annotations
 
@@ -182,6 +186,73 @@ class PayPalClient:
             },
         )
         return resp.json()
+
+    # ------------------------------------------------------- test store helpers
+    def create_order(
+        self,
+        amount: Decimal,
+        currency: str,
+        description: str,
+        custom_id: str | None = None,
+        request_id: str | None = None,
+        invoice_id: str | None = None,
+    ) -> dict:
+        """Create a checkout order for the PayPal JS SDK buttons to approve."""
+        unit = {
+            "description": description[:127],
+            "amount": {"currency_code": currency, "value": f"{amount:.2f}"},
+        }
+        if custom_id:
+            unit["custom_id"] = custom_id[:127]
+            unit["reference_id"] = custom_id[:256]
+        if invoice_id:
+            unit["invoice_id"] = invoice_id[:127]
+        resp = self._request(
+            "POST",
+            "/v2/checkout/orders",
+            headers={"PayPal-Request-Id": request_id or str(uuid.uuid4()), "Prefer": "return=representation"},
+            json={"intent": "CAPTURE", "purchase_units": [unit]},
+        )
+        return resp.json()
+
+    def capture_order(self, order_id: str, request_id: str | None = None) -> dict:
+        resp = self._request(
+            "POST",
+            f"/v2/checkout/orders/{order_id}/capture",
+            headers={"PayPal-Request-Id": request_id or f"capture-{order_id}", "Prefer": "return=representation"},
+            json={},
+        )
+        return resp.json()
+
+    def create_invoice(self, invoice: dict) -> dict:
+        resp = self._request(
+            "POST",
+            "/v2/invoicing/invoices",
+            headers={"Prefer": "return=representation"},
+            json=invoice,
+        )
+        return resp.json()
+
+    def send_invoice(self, invoice_id: str) -> None:
+        self._request(
+            "POST",
+            f"/v2/invoicing/invoices/{invoice_id}/send",
+            json={"send_to_invoicer": False, "send_to_recipient": True},
+        )
+
+    def record_invoice_payment(self, invoice_id: str, amount: Decimal, currency: str, day: str) -> dict:
+        """Record a payment received outside PayPal (e.g. a bank transfer) against an invoice."""
+        resp = self._request(
+            "POST",
+            f"/v2/invoicing/invoices/{invoice_id}/payments",
+            json={
+                "method": "BANK_TRANSFER",
+                "payment_date": day,
+                "amount": {"currency_code": currency, "value": f"{amount:.2f}"},
+                "note": "Recorded by the Closeout test store",
+            },
+        )
+        return resp.json() if resp.content else {}
 
     @property
     def resolution_center_url(self) -> str:

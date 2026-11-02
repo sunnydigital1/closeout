@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Closeout test store (PayPal sandbox)</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231C2836'/%3E%3Cpath d='M8 17.5l5 5L24.5 9' fill='none' stroke='%23F7DD4A' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/">
+      <svg class="brand-tick" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 17.5l6.5 6.5L26 8"/></svg>
+      <span class="brand-name">Closeout</span>
+    </a>
+    <div class="masthead-controls">
+      <span class="month-label">Sandbox test store</span>
+      <a class="btn btn-quiet" href="/">Back to Closeout</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Make real sandbox activity to reconcile.</h1>
+      <p class="hero-sub">Every purchase here is a real PayPal sandbox payment, and each normal sale is written to your books the way a shop's order system would. A few buttons then create the mistakes Closeout should catch.</p>
+      <div class="note">
+        <p class="note-text">In the PayPal window, log in with your sandbox buyer account. You'll find it in the PayPal developer dashboard under Testing Tools, Sandbox Accounts. No real money moves.</p>
+      </div>
+    </section>
+
+    <div class="notice" id="notice" hidden><p id="noticeText"></p></div>
+
+    <div class="store-layout">
+      <ol class="steps">
+        <li class="step" id="stepInvoices">
+          <h2>Create the wholesale invoices</h2>
+          <p>Four invoices through PayPal's Invoicing API: one paid by bank transfer, one partly paid, one due tomorrow (it turns overdue after that), and one not due yet.</p>
+          <div id="invoiceArea"><button class="btn btn-ink" id="invoiceBtn" type="button">Create the invoices</button></div>
+        </li>
+
+        <li class="step" id="stepSales">
+          <h2>Make a few normal sales</h2>
+          <p>Five or six is plenty. Each one is recorded in your books.</p>
+          <div class="store-form">
+            <label>Product <select id="product"></select></label>
+            <label>Quantity
+              <select id="qty"><option>1</option><option>2</option><option>3</option></select>
+            </label>
+          </div>
+          <div id="normalButtons" class="pp-buttons"></div>
+        </li>
+
+        <li class="step" id="stepMistakes">
+          <h2>Create the mistakes</h2>
+          <p>Each of these leaves PayPal and your books disagreeing, the way it happens in real shops.</p>
+          <div class="case">
+            <h3>The customer pays twice</h3>
+            <p>Charges an order again, as if checkout went through twice. Your books keep one sale.</p>
+            <div class="store-form"><label>Order <select id="repeatRef"></select></label></div>
+            <div id="repeatButtons" class="pp-buttons"></div>
+          </div>
+          <div class="case">
+            <h3>A sale that skips your books</h3>
+            <p>A $75.00 custom-order deposit paid by PayPal link, with no order behind it.</p>
+            <div id="offbookButtons" class="pp-buttons"></div>
+          </div>
+          <div class="case">
+            <h3>A refund done only in PayPal</h3>
+            <p>Refunds an order through the PayPal API without updating your books.</p>
+            <div class="store-form">
+              <label>Order <select id="refundRef"></select></label>
+              <button class="btn btn-quiet store-inline-btn" id="refundBtn" type="button">Refund in PayPal only</button>
+            </div>
+          </div>
+        </li>
+
+        <li class="step" id="stepClose">
+          <h2>Run the close</h2>
+          <p>PayPal can take up to three hours to show new payments in its transaction search. After that, open Closeout, switch to PayPal sandbox, and click Run the close.</p>
+          <a class="btn btn-ink" href="/?source=paypal">Open Closeout on PayPal sandbox</a>
+        </li>
+      </ol>
+
+      <aside class="store-side">
+        <section class="sheet">
+          <div class="panel-head"><h2>Your books</h2><span class="progress" id="booksPath"></span></div>
+          <table class="books" id="booksTable"></table>
+        </section>
+        <section class="sheet">
+          <div class="panel-head"><h2>What happened</h2></div>
+          <ol class="activity-list" id="storeLog"><li class="empty">Nothing yet.</li></ol>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/static/store.js" type="module"></script>
+</body>
+</html>

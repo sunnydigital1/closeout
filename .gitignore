@@ -11,8 +11,9 @@ __pycache__/
 # Local runtime data
 data/cache/
 data/runtime/
-data/sandbox/*.csv
-!data/sandbox/.gitkeep
+# Test store bookkeeping. (data/sandbox/orders.csv, your sandbox "books", can be
+# committed so a hosted demo can reconcile the same sandbox data.)
+data/sandbox/store.json
 
 # OS / editor
 .DS_Store

@@ -23,3 +23,5 @@ services:
         sync: false
       - key: ALLOW_LIVE_ACTIONS
         value: "true"
+      - key: ENABLE_TEST_STORE
+        value: "false"

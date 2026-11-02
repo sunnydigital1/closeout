@@ -346,7 +346,7 @@ h1, h2, h3 { font-family: var(--font); color: var(--ink); }
 .activity-list .empty { display: block; color: var(--graphite); border: 0; }
 
 .foot { max-width: var(--max); margin: 0 auto; padding: 0 var(--page-pad) 40px; color: var(--graphite); font-size: 13px; }
-.foot p { max-width: 90ch; margin: 0; }
+.foot p { max-width: 90ch; margin: 0 0 6px; }
 
 /* --------------------------------------------------------------- dialog */
 dialog {
@@ -399,10 +399,69 @@ dialog::backdrop { background: rgba(28, 40, 54, 0.38); }
 }
 .toast .mark path { stroke: #f7dd4a; }
 
+/* ----------------------------------------------------------- test store */
+a.brand { color: inherit; text-decoration: none; }
+a.btn { display: inline-block; text-decoration: none; }
+.notice { max-width: var(--max); margin: 0 auto; padding: 0 var(--page-pad); }
+.notice p { margin: 0 0 18px; padding: 10px 14px; border-radius: 6px; background: var(--highlighter); max-width: 90ch; }
+.store-layout {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 4px var(--page-pad) 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+  gap: 24px;
+  align-items: start;
+}
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; counter-reset: step; }
+.step {
+  counter-increment: step;
+  position: relative;
+  padding: 18px 20px 20px 66px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+}
+.step::before {
+  content: counter(step);
+  position: absolute; left: 20px; top: 17px;
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border: 1.5px solid var(--ink); border-radius: 50%;
+  font-weight: 700; font-size: 14px;
+}
+.step.is-done::before { content: "\2713"; border-color: var(--tick); color: var(--tick); }
+.step h2 { margin: 2px 0 4px; font-size: 18px; font-weight: 700; font-stretch: 112%; }
+.step p { margin: 0 0 12px; color: var(--ink-soft); max-width: 70ch; }
+.case { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.case h3 { margin: 0 0 2px; font-size: 15.5px; font-weight: 650; }
+.case p { margin-bottom: 10px; }
+.store-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+.store-form label { display: inline-flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--graphite); }
+.store-form select {
+  font: inherit; font-size: 14.5px; color: var(--ink);
+  min-width: 230px; padding: 7px 10px;
+  border: 1px solid var(--rule-strong); border-radius: 6px; background: #fff;
+}
+.store-form select:disabled { color: var(--graphite); background: var(--paper); }
+.store-inline-btn { height: 37px; }
+.pp-buttons { max-width: 340px; min-height: 44px; }
+.store-side { display: grid; gap: 16px; position: sticky; top: 16px; }
+.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; }
+.books { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.books th, .books td { padding: 7px 14px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.books th { font-weight: 560; color: var(--graphite); }
+.books .money { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.books td:first-child { white-space: nowrap; }
+.books .flag { color: var(--red-ink); font-size: 12.5px; }
+.books .empty-cell { color: var(--graphite); }
+#invoiceArea .books th:first-child, #invoiceArea .books td:first-child { padding-left: 0; }
+.foot a { color: var(--ink-soft); }
+
 /* ----------------------------------------------------------- responsive */
 @media (max-width: 1120px) {
-  .workspace, .lower { grid-template-columns: 1fr; }
-  .review { position: static; max-height: none; }
+  .workspace, .lower, .store-layout { grid-template-columns: 1fr; }
+  .review, .store-side { position: static; max-height: none; }
 }
 @media (max-width: 720px) {
   :root { --page-pad: 16px; }

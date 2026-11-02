@@ -42,10 +42,13 @@ To use Claude instead, set `AI_PROVIDER=claude` and `ANTHROPIC_API_KEY`.
 
 1. In the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/sandbox), open your sandbox app and copy the **Client ID** and **Secret** into `.env`.
 2. On the same app page, under **Features**, turn on **Transaction search** and **Invoicing**. PayPal can take a few hours to enable new permissions.
-3. Give Closeout your books: a CSV of your orders at `data/sandbox/orders.csv` (columns below). A seeding script that creates matching sandbox activity is in progress.
-4. Restart and switch the source to **PayPal sandbox**. Approved actions now call the real PayPal sandbox API with test money.
+3. Restart Closeout and open the **sandbox test store** at http://localhost:8000/store. It plays the part of your shop's order system:
+   - **Create the wholesale invoices**: four invoices through the Invoicing API (created, sent, and one paid and one partly paid by recorded bank transfer).
+   - **Make five or six sales** through real PayPal Checkout. Log in with your sandbox buyer from *Testing Tools → Sandbox Accounts*. Each sale is written to your books, `data/sandbox/orders.csv`.
+   - **Create the mistakes**: charge a customer twice, take a payment that never reaches your books, and refund an order in PayPal only.
+4. PayPal's transaction search can take up to three hours to show new payments. Then switch Closeout to **PayPal sandbox** and click **Run the close**. Approved actions call the real PayPal sandbox API with test money.
 
-Books CSV columns: `order_id, date, customer_name, customer_email, channel (web|invoice), reference, amount, currency, status (paid|invoiced|refunded)`. For checkout orders, `reference` is the order number your store sends to PayPal as the invoice ID; for invoiced orders it's the PayPal invoice number.
+**Using your own books instead:** put a CSV at `data/sandbox/orders.csv` with columns `order_id, date, customer_name, customer_email, channel (web|invoice), reference, amount, currency, status (paid|invoiced|refunded)`. For checkout orders, `reference` is the order number your store sends to PayPal (as `invoice_id` or `custom_id`); for invoiced orders it's the PayPal invoice number.
 
 ## How it works
 
@@ -85,6 +88,8 @@ Your order records (CSV) ──┘     (plain code)        (exact figures)      
 | Invoicing v2 | `POST /v2/invoicing/invoices/{id}/remind` | Payment reminders, with the AI-drafted note |
 | Payments v2 | `POST /v2/payments/captures/{id}/refund` | Refunding a duplicate payment |
 
+The sandbox test store also uses the **PayPal JS SDK** buttons with **Orders v2** (`POST /v2/checkout/orders`, `/capture`) for real checkouts, and **Invoicing v2** (`POST /v2/invoicing/invoices`, `/send`, `/payments`) to create the wholesale invoices.
+
 ## Project layout
 
 ```
@@ -94,11 +99,12 @@ app/
   paypal.py      PayPal REST client
   normalize.py   PayPal API responses and books CSV -> models
   actions.py     approval-gated actions
+  store.py       sandbox test store: real checkouts plus the messy cases
   main.py        FastAPI app and JSON API
-static/          dashboard (vanilla JS + AG Grid Community)
+static/          dashboard and test store (vanilla JS + AG Grid Community)
 scripts/         demo-month generator
 data/sample/     the demo month, in PayPal API format
-tests/           37 tests, no network needed
+tests/           46 tests, no network needed
 ```
 
 ## Tests

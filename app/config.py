@@ -35,6 +35,7 @@ class Settings:
     fee_fixed: Decimal
     intl_fee_percent: Decimal
     allow_live_actions: bool
+    store_enabled: bool
 
     @property
     def paypal_configured(self) -> bool:
@@ -71,4 +72,6 @@ def load_settings() -> Settings:
         intl_fee_percent=Decimal(_env("INTL_FEE_PERCENT", "1.50")),
         # Hosted demos can switch real sandbox actions off and simulate instead.
         allow_live_actions=_env("ALLOW_LIVE_ACTIONS", "true").lower() in ("1", "true", "yes"),
+        # The sandbox test store creates PayPal sandbox activity. Off on hosted demos.
+        store_enabled=_env("ENABLE_TEST_STORE", "true").lower() in ("1", "true", "yes"),
     )

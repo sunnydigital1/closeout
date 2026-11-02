@@ -71,8 +71,9 @@ class _Engine:
         self.by_ref: dict[str, list[PayPalTxn]] = defaultdict(list)
         self.by_id: dict[str, PayPalTxn] = {t.id: t for t in ds.txns}
         for p in self.payments:
-            if p.invoice_ref:
-                self.by_ref[p.invoice_ref].append(p)
+            # Stores pass their order number to PayPal as invoice_id or custom_id.
+            for ref in {p.invoice_ref, p.custom} - {None, ""}:
+                self.by_ref[ref].append(p)
         self.follow_ups: dict[str, list[PayPalTxn]] = defaultdict(list)
         for t in ds.txns:
             if t.reference_id and t.kind != "payment":
@@ -188,7 +189,7 @@ class _Engine:
 
     def _fuzzy_match(self, order: Order) -> list[PayPalTxn]:
         for p in self.payments:
-            if p.id in self.used or p.invoice_ref:
+            if p.id in self.used or p.invoice_ref or p.custom:
                 continue
             if not p.payer_email or p.payer_email.lower() != order.customer_email:
                 continue
