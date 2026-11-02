@@ -186,3 +186,22 @@ def test_event_code_classification():
 )
 def test_paypal_datetime_formats(raw):
     assert parse_paypal_datetime(raw) == datetime(2026, 10, 3, 14, 22, 11, tzinfo=timezone.utc)
+
+
+def _partial_invoice(due):
+    inv = Invoice("INV2-P", "INV-P", "PARTIALLY_PAID", "Cedar & Sage", "c@example.com", date(2026, 10, 20), due,
+                  Decimal("450.00"), Decimal("300.00"), "USD")
+    order = _order("INV-P", "450.00", channel="invoice", status="invoiced")
+    return reconcile(Dataset(_meta(), [order], [], [inv])).issues[0]
+
+
+def test_partial_payment_not_yet_due_is_low_priority():
+    issue = _partial_invoice(date(2026, 11, 16))  # close date is Nov 2
+    assert (issue.kind, issue.severity) == ("PARTIAL_PAYMENT", "low")
+    assert issue.facts["balance_status"] == "Not due yet" and "days_overdue" not in issue.facts
+
+
+def test_overdue_partial_payment_is_medium_priority():
+    issue = _partial_invoice(date(2026, 10, 25))
+    assert issue.severity == "medium" and issue.facts["balance_status"] == "Overdue"
+    assert issue.facts["days_overdue"] == 8

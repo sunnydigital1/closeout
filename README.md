@@ -104,7 +104,7 @@ app/
 static/          dashboard and test store (vanilla JS + AG Grid Community)
 scripts/         demo-month generator
 data/sample/     the demo month, in PayPal API format
-tests/           50 tests, no network needed
+tests/           53 tests, no network needed
 ```
 
 ## Tests

@@ -180,3 +180,13 @@ def test_summary_mentions_sales_waiting_for_paypal():
     assert _summary_facts(result)["recent_sales_waiting_for_paypal_to_report"] == 1
     # The demo month has nothing waiting, so its prompt (and cached AI answer) is unchanged.
     assert "recent_sales_waiting_for_paypal_to_report" not in _summary_facts(reconcile(load_sample()))
+
+
+def test_ai_sees_readable_dates(october):
+    from app.ai import _issue_payload
+
+    issue = next(i for i in october.issues if i.id == "UNPAID-INV-2026-031")
+    assert issue.facts["due_date"] == "2026-10-20"  # the engine keeps ISO dates
+    assert _issue_payload(issue)["facts"]["due_date"] == "Oct 20, 2026"
+    # Writing the date that way passes the numbers guardrail.
+    assert invented_numbers("It was due on Oct 20, 2026.", allowed_numbers(issue.facts)) == []

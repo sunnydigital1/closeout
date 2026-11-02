@@ -182,13 +182,17 @@ _ISO_DAY = re.compile(r"^(\d{4})-(\d{2})-(\d{2})$")
 _MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 
+def _friendly_date(value):
+    """2026-10-20 -> Oct 20, 2026 (same numbers, so the guardrail still passes)."""
+    day = _ISO_DAY.match(str(value))
+    if not day:
+        return value
+    year, month, dom = day.groups()
+    return f"{_MONTHS[int(month) - 1]} {int(dom)}, {year}"
+
+
 def _f(issue: Issue, key: str, default: str = "") -> str:
-    value = str(issue.facts.get(key, default))
-    day = _ISO_DAY.match(value)
-    if day:  # 2026-10-20 -> Oct 20, 2026 (same numbers, so the guardrail still passes)
-        year, month, dom = day.groups()
-        return f"{_MONTHS[int(month) - 1]} {int(dom)}, {year}"
-    return value
+    return str(_friendly_date(issue.facts.get(key, default)))
 
 
 def template_explanation(issue: Issue, business: str) -> dict:
@@ -222,6 +226,10 @@ def template_explanation(issue: Issue, business: str) -> dict:
             f"{f('customer')} paid {f('amount_paid')} of invoice {f('invoice_number')} ({f('invoice_amount')}), "
             f"so {f('amount_due')} is still owed."
         )
+        if f("balance_status") == "Not due yet":
+            text += f" The rest isn't due until {f('due_date')}."
+        elif f("balance_status") == "Overdue":
+            text += f" It was due on {f('due_date')}, {f('days_overdue')} days ago."
         cause = "The customer may have paid an older quote or split the payment."
         message = (
             f"Hi {f('customer')} team, thanks for your payment of {f('amount_paid')} on invoice "
@@ -333,7 +341,7 @@ def _issue_payload(issue: Issue) -> dict:
         "kind": issue.kind,
         "severity": issue.severity,
         "title": issue.title,
-        "facts": issue.facts,
+        "facts": {key: _friendly_date(value) for key, value in issue.facts.items()},
         "allowed_actions": [{"type": a.type, "label": a.label} for a in issue.actions],
     }
 

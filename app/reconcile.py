@@ -526,10 +526,13 @@ class _Engine:
         if inv.status == "PARTIALLY_PAID":
             facts = dict(base_facts)
             if days_overdue > 0:
+                facts["balance_status"] = "Overdue"
                 facts["days_overdue"] = days_overdue
+            elif inv.due_date:
+                facts["balance_status"] = "Not due yet"
             issue = self._issue(
                 "PARTIAL_PAYMENT",
-                "medium",
+                "high" if days_overdue >= 10 else "medium" if days_overdue > 0 else "low",
                 f"Invoice {inv.number} is only partly paid",
                 inv.due,
                 row_id,

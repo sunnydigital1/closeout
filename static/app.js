@@ -66,7 +66,7 @@ const FACT_LABELS = {
   second_payment_time: 'Second payment at', minutes_apart: 'Minutes apart', duplicate_amount: 'Duplicate amount',
   fee_on_duplicate: 'PayPal fee on the duplicate', invoice_number: 'Invoice', invoice_amount: 'Invoice amount',
   amount_paid: 'Paid so far', amount_due: 'Still due', issued: 'Issued', due_date: 'Due', close_date: 'Close date',
-  days_overdue: 'Days overdue', refund_amount: 'Refund', refund_date: 'Refunded on', refund_id: 'Refund ID',
+  days_overdue: 'Days overdue', balance_status: 'Remaining balance', refund_amount: 'Refund', refund_date: 'Refunded on', refund_id: 'Refund ID',
   status_in_books: 'Status in your books', payment_id: 'Payment ID', chargeback_id: 'Chargeback ID',
   chargeback_date: 'Chargeback date', amount_reversed: 'Amount taken back', dispute_fee: 'Dispute fee',
   total_taken_back: 'Total taken back', buyer_paid: 'Buyer paid', paypal_fee: 'PayPal fee',
