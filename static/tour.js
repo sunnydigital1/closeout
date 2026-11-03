@@ -3,7 +3,8 @@
 // (?tour=demo) and as the demo video (?tour=video, which adds a segment on a
 // live PayPal sandbox account). scripts/record_demo.py records it to MP4.
 //
-// Options: ?tour=demo | video, &speed=2 (faster, for testing).
+// Options: ?tour=demo | video, &speed=2 (faster, for testing), &live=reminder
+// (in the live segment, send an invoice reminder instead of refunding a duplicate).
 
 const REPO = 'github.com/sunnydigital1/closeout';
 const $ = (id) => document.getElementById(id);
@@ -282,7 +283,8 @@ export async function startTour({ state, mode = 'demo' }) {
         + (live.waiting_count ? ' Sales PayPal hasn’t reported yet show as waiting, never as missing.' : ''));
 
       const liveOpen = state.data.issues.filter((i) => i.status === 'open');
-      const prefer = ['refund_duplicate', 'send_reminder'];
+      // &live=reminder skips the refund (say, if it was already refunded by hand).
+      const prefer = params.get('live') === 'reminder' ? ['send_reminder'] : ['refund_duplicate', 'send_reminder'];
       let pick = null;
       for (const type of prefer) {
         const issue = liveOpen.find((i) => i.actions.some((a) => a.type === type));
