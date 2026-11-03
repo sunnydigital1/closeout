@@ -5,7 +5,9 @@
 //
 // Options: ?tour=demo | video, &speed=2 (faster, for testing), &live=reminder
 // (in the live segment, send an invoice reminder instead of refunding a duplicate),
-// &ask=0 (skip the question). The recorder reads window.__tourMarks to edit the video.
+// &ask=0 (skip the question), &holds=ms,ms,... (how long each caption stays up, in
+// order, e.g. to match a voiceover) and &titleHold=ms. The recorder reads
+// window.__tourMarks (including when each caption appears) to edit the video.
 
 const REPO = 'github.com/sunnydigital1/closeout';
 const $ = (id) => document.getElementById(id);
@@ -112,12 +114,16 @@ export async function startTour({ state, mode = 'demo' }) {
   const mark = (name) => window.__tourMarks.push({ name, at: Date.now() });
   const readingTime = (text) => 1400 + text.replace(/<[^>]+>/g, '').split(/\s+/).length * 330;
 
+  const holds = (params.get('holds') || '').split(',').map(Number);
+  let captionCount = 0;
   const caption = async (html, hold) => {
+    const n = captionCount++;
     captionEl.classList.remove('is-on');
     await sleep(220);
     captionEl.innerHTML = html;
     captionEl.classList.add('is-on');
-    await sleep(hold ?? readingTime(html));
+    mark(`caption-${n}`);
+    await sleep(holds[n] > 0 ? holds[n] : (hold ?? readingTime(html)));
   };
   const hideCaption = () => captionEl.classList.remove('is-on');
 
@@ -192,7 +198,7 @@ export async function startTour({ state, mode = 'demo' }) {
     // ---------------------------------------------------------------- title
     await card(`<svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 17.5l6.5 6.5L26 8"/></svg>
       <h1>Closeout</h1><div class="rule"></div>
-      <p>Month-end close for small businesses that sell through PayPal</p>`, 4200, { instant: true });
+      <p>Month-end close for small businesses that sell through PayPal</p>`, Number(params.get('titleHold')) || 4200, { instant: true });
     await hideCard();
 
     // ------------------------------------------------------------- the close
