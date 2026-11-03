@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import base64
+import json
 import shutil
 import subprocess
 import sys
@@ -41,7 +42,7 @@ def find_ffmpeg() -> str:
     sys.exit("ffmpeg not found. Run: pip install imageio-ffmpeg")
 
 
-async def capture(url: str, frames_dir: Path, width: int, height: int, timeout_s: int) -> tuple[list[tuple[float, Path]], float, float]:
+async def capture(url: str, frames_dir: Path, width: int, height: int, timeout_s: int) -> tuple[list[tuple[float, Path]], float, float, list]:
     try:
         from playwright.async_api import async_playwright
     except ImportError:
@@ -98,11 +99,12 @@ async def capture(url: str, frames_dir: Path, width: int, height: int, timeout_s
                 sys.exit("The tour didn't finish in time. Is Closeout running, and does the page load?")
             await asyncio.sleep(0.5)
         t0_ms = await page.evaluate("window.__tourT0 || 0")
+        marks = await page.evaluate("window.__tourMarks || []")
         await asyncio.sleep(0.4)
         await cdp.send("Page.stopScreencast")
         end = time.time()
         await browser.close()
-    return frames, t0_ms / 1000 if t0_ms else 0.0, end
+    return frames, t0_ms / 1000 if t0_ms else 0.0, end, marks
 
 
 def encode(frames: list[tuple[float, Path]], start: float, end: float, out: Path, fps: int) -> None:
@@ -139,18 +141,25 @@ def main() -> None:
     parser.add_argument("--fps", type=int, default=30)
     parser.add_argument("--speed", type=float, default=1.0, help="play the tour faster (for a quick test)")
     parser.add_argument("--timeout", type=int, default=600, help="seconds to wait for the tour to finish")
+    parser.add_argument("--params", default="", help="extra tour options, e.g. ask=0&live=reminder")
     args = parser.parse_args()
 
     mode = "demo" if args.demo_only else "video"
     url = f"{args.url.rstrip('/')}/?tour={mode}"
     if args.speed != 1:
         url += f"&speed={args.speed}"
+    if args.params:
+        url += "&" + args.params.lstrip("&?")
 
     frames_dir = Path(tempfile.mkdtemp(prefix="closeout-frames-"))
     try:
-        frames, start, end = asyncio.run(capture(url, frames_dir, args.width, args.height, args.timeout))
+        frames, start, end, marks = asyncio.run(capture(url, frames_dir, args.width, args.height, args.timeout))
         out = Path(args.out)
         encode(frames, start, end, out, args.fps)
+        # Where each part of the tour starts, in seconds from the start of the video.
+        origin = start or frames[0][0]
+        cuts = {m["name"]: round(m["at"] / 1000 - origin, 2) for m in marks}
+        out.with_suffix(".json").write_text(json.dumps(cuts, indent=1) + "\n")
         length = end - (start or frames[0][0])
         print(f"Saved {out.resolve()} ({length:.0f} seconds, {len(frames)} frames captured)")
         if length > 178:

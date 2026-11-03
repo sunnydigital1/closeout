@@ -4,7 +4,8 @@
 // live PayPal sandbox account). scripts/record_demo.py records it to MP4.
 //
 // Options: ?tour=demo | video, &speed=2 (faster, for testing), &live=reminder
-// (in the live segment, send an invoice reminder instead of refunding a duplicate).
+// (in the live segment, send an invoice reminder instead of refunding a duplicate),
+// &ask=0 (skip the question). The recorder reads window.__tourMarks to edit the video.
 
 const REPO = 'github.com/sunnydigital1/closeout';
 const $ = (id) => document.getElementById(id);
@@ -107,6 +108,8 @@ export async function startTour({ state, mode = 'demo' }) {
       await new Promise((r) => setTimeout(r, 100));
     }
   };
+  window.__tourMarks = [];
+  const mark = (name) => window.__tourMarks.push({ name, at: Date.now() });
   const readingTime = (text) => 1400 + text.replace(/<[^>]+>/g, '').split(/\s+/).length * 330;
 
   const caption = async (html, hold) => {
@@ -122,7 +125,7 @@ export async function startTour({ state, mode = 'demo' }) {
     cardEl.innerHTML = html;
     cardEl.classList.toggle('is-instant', instant);
     cardEl.classList.add('is-on');
-    if (instant) window.__tourT0 = Date.now(); // the recorder starts the video here
+    if (instant) { window.__tourT0 = Date.now(); mark('start'); } // the recorder starts the video here
     await sleep(hold);
     cardEl.classList.remove('is-instant');
   };
@@ -255,7 +258,10 @@ export async function startTour({ state, mode = 'demo' }) {
         : 'Approved. The refund went through PayPal’s API with a request ID, so it can never go out twice.');
     }
 
+    mark('demo-done');
+
     // ------------------------------------------------------------------ ask
+    if (params.get('ask') !== '0') {
     await scrollTo($('askTitle').closest('.lower'), 60);
     const chip = [...document.querySelectorAll('#suggestions .chip')].find((b) => /bank transfer/i.test(b.textContent))
       || document.querySelector('#suggestions .chip');
@@ -264,10 +270,12 @@ export async function startTour({ state, mode = 'demo' }) {
     await waitFor(() => !$('answer').hidden && !$('answer').querySelector('.is-waiting'), { label: 'the answer', timeout: 60000 });
     await moveTo($('answer'), { fx: 0.7, fy: 0.4 });
     await sleep(4200);
+    }
 
     // ------------------------------------------------- live PayPal sandbox
     const paypal = state.config.sources.find((x) => x.id === 'paypal');
     if (mode === 'video' && paypal?.available) {
+      mark('live');
       scrollTo_(0);
       await sleep(900);
       const btn = document.querySelector('#sourceSwitch button[data-source="paypal"]');
@@ -322,6 +330,7 @@ export async function startTour({ state, mode = 'demo' }) {
     // ------------------------------------------------------------------ end
     hideCaption();
     cursorEl.classList.remove('is-on');
+    mark('end');
     await card(`<svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 17.5l6.5 6.5L26 8"/></svg>
       <h1>Closeout</h1><div class="rule"></div>
       <p>The month, reconciled. Every fix approved by you.</p>
