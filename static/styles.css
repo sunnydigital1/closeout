@@ -132,7 +132,12 @@ h1, h2, h3 { font-family: var(--font); color: var(--ink); }
   max-width: var(--max);
   margin: 0 auto;
   padding: 40px var(--page-pad) 26px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(330px, 420px);
+  column-gap: 56px;
+  align-items: end;
 }
+.hero-main { min-width: 0; }
 .hero h1 {
   margin: 0 0 10px;
   font-size: clamp(30px, 3.6vw, 48px);
@@ -172,6 +177,43 @@ h1, h2, h3 { font-family: var(--font); color: var(--ink); }
 @keyframes dots {
   0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; }
 }
+
+/* Where the month's sales went: a tall segmented bar (AG Charts) on a sheet. */
+.split {
+  margin: 0;
+  padding: 16px 18px 14px;
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+}
+.split-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.split-head h2 { margin: 0; font-size: 15px; font-weight: 700; font-stretch: 112%; }
+.split-head .btn-link { font-size: 12.5px; color: var(--graphite); white-space: nowrap; }
+/* Rounds the bar's two outer ends; the 2px gaps between blocks come from the chart. */
+.split-chart { height: 30px; border-radius: 5px; overflow: hidden; }
+.split-chart.is-drawing { animation: split-draw 0.9s cubic-bezier(0.22, 0.8, 0.3, 1) both; }
+@keyframes split-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.split-legend { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink-soft); }
+.split-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.split-legend .swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+.split-note { margin: 10px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); }
+.split.is-empty .split-chart, .split.is-empty .split-legend, .split.is-empty .split-head .btn-link { display: none; }
+.split.is-empty .split-note { margin-top: 0; }
+.split-table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 13px; }
+.split-table th { text-align: left; font-weight: 560; color: var(--graphite); padding: 4px 0; border-bottom: 1px solid var(--rule); }
+.split-table td { padding: 5px 0; border-bottom: 1px solid var(--rule); }
+.split-table th:not(:first-child), .split-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+.split-table tr:last-child td { border-bottom: 0; }
+/* AG Charts tooltip: value first, then the part, keyed by a short line. */
+.split .ag-charts-tooltip {
+  background: var(--ink); color: #fff; border: 0; border-radius: 6px;
+  padding: 7px 10px; font-family: var(--font); font-size: 13px;
+  box-shadow: 0 6px 18px rgba(28, 40, 54, 0.18);
+}
+.split-tip { display: grid; grid-template-columns: auto auto; align-items: center; column-gap: 7px; white-space: nowrap; }
+.split-tip .key { width: 12px; height: 3px; border-radius: 2px; grid-row: span 2; align-self: center; }
+.split-tip strong { font-size: 14px; font-variant-numeric: tabular-nums; }
+.split-tip span:last-child { grid-column: 2; color: #d5dde6; font-size: 12.5px; }
 
 /* ---------------------------------------------------------------- tally */
 .tally { max-width: var(--max); margin: 0 auto; padding: 0 var(--page-pad); }
@@ -462,6 +504,8 @@ a.btn { display: inline-block; text-decoration: none; }
 
 /* ----------------------------------------------------------- responsive */
 @media (max-width: 1120px) {
+  .hero { grid-template-columns: 1fr; row-gap: 22px; }
+  .split { max-width: 560px; }
   .workspace, .lower, .store-layout { grid-template-columns: 1fr; }
   .review, .store-side { position: static; max-height: none; }
 }

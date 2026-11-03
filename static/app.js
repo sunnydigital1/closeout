@@ -1,4 +1,6 @@
-// Closeout dashboard: vanilla JS + AG Grid Community.
+// Closeout dashboard: vanilla JS + AG Grid Community + AG Charts Community.
+import { initSplit, renderSplit } from './split.js';
+
 const agGrid = window.agGrid;
 if (agGrid?.ModuleRegistry && agGrid?.AllCommunityModule) {
   try { agGrid.ModuleRegistry.registerModules([agGrid.AllCommunityModule]); } catch { /* already registered */ }
@@ -9,8 +11,10 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 
 // Each browser gets its own demo-month state, so people sharing a hosted demo
 // don't see each other's approvals.
+const TOUR = new URLSearchParams(location.search).get('tour');
 const SESSION = (() => {
   const fresh = () => (crypto.randomUUID ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  if (TOUR) return fresh(); // a guided tour always starts from a clean demo month
   try {
     let id = localStorage.getItem('closeout-session');
     if (!id) { id = fresh(); localStorage.setItem('closeout-session', id); }
@@ -489,6 +493,7 @@ function selectIssue(id, { fromGrid = false } = {}) {
 function renderAll(animate = false) {
   renderHero(animate);
   renderTally();
+  renderSplit(state.data, { reduceMotion: reduceMotion || !animate });
   renderAi();
   renderList();
   renderDetail();
@@ -787,8 +792,15 @@ async function init() {
   state.source = wanted === 'paypal' && paypal?.available ? 'paypal' : 'sample';
   state.month = state.config.sources.find((s) => s.id === state.source).month;
   renderSourceSwitch();
+  initSplit();
+  // The chart draws its labels on a canvas, so let the web font load first.
+  await Promise.race([document.fonts?.ready, new Promise((resolve) => setTimeout(resolve, 1500))]);
   await runClose(false);
   loadActivity();
+  if (TOUR) {
+    const { startTour } = await import('./tour.js');
+    startTour({ state, mode: TOUR === 'video' ? 'video' : 'demo' });
+  }
 }
 
 init();

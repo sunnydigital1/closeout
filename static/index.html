@@ -23,13 +23,28 @@
   </header>
 
   <main>
-    <section class="hero" aria-live="polite">
-      <h1 id="heroTitle">Checking your PayPal month&hellip;</h1>
-      <p class="hero-sub" id="heroSub"></p>
-      <div class="note" id="aiNote">
-        <p class="note-text" id="aiSummary"></p>
-        <p class="note-source" id="aiSource"></p>
+    <section class="hero">
+      <div class="hero-main" aria-live="polite">
+        <h1 id="heroTitle">Checking your PayPal month&hellip;</h1>
+        <p class="hero-sub" id="heroSub"></p>
+        <div class="note" id="aiNote">
+          <p class="note-text" id="aiSummary"></p>
+          <p class="note-source" id="aiSource"></p>
+        </div>
       </div>
+      <figure class="split" id="split" aria-labelledby="splitTitle" hidden>
+        <figcaption class="split-head">
+          <h2 id="splitTitle">Where the sales went</h2>
+          <button class="btn-link" id="splitTableToggle" type="button" aria-expanded="false" aria-controls="splitTable">Show the figures</button>
+        </figcaption>
+        <div class="split-chart" id="splitChart" role="img"></div>
+        <ul class="split-legend" id="splitLegend"></ul>
+        <p class="split-note" id="splitNote"></p>
+        <table class="split-table" id="splitTable" hidden>
+          <thead><tr><th scope="col">Where it went</th><th scope="col">Amount</th><th scope="col">Share</th></tr></thead>
+          <tbody id="splitTableBody"></tbody>
+        </table>
+      </figure>
     </section>
 
     <section class="tally" aria-label="Month totals">
@@ -87,6 +102,7 @@
 
   <footer class="foot">
     <p>Closeout reconciles PayPal Transaction Search and Invoicing data against your order records. The demo month is a fictional shop; every name and ID in it is made up.</p>
+    <p>New here? <a href="/?tour=demo">Take the two-minute guided tour</a>.</p>
     <p id="storeLink" hidden>Need PayPal sandbox activity to reconcile? <a href="/store">Open the test store</a>.</p>
   </footer>
 
@@ -113,6 +129,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="/static/vendor/ag-grid-community.min.js"></script>
+  <script src="/static/vendor/ag-charts-community.min.js"></script>
   <script src="/static/app.js" type="module"></script>
 </body>
 </html>

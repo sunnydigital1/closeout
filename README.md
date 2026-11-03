@@ -30,6 +30,8 @@ uvicorn app.main:app --reload
 
 Open http://localhost:8000. The **demo month** is a fictional candle shop's October 2026: 312 PayPal transactions in the exact format PayPal's APIs return, 303 order records, and nine planted problems. It runs with no keys at all. Explanations come from Closeout's rules until you add an AI key.
 
+New to it? Open http://localhost:8000/?tour=demo for a two-minute guided tour that plays itself, with captions.
+
 ## Turn on the AI (free)
 
 1. Copy `.env.example` to `.env`.
@@ -76,6 +78,8 @@ Your order records (CSV) ──┘     (plain code)        (exact figures)      
 | Sale missing from books | A $75.00 payment with no order | Add the sale to the books |
 | Payment or invoice missing in PayPal | Marked paid in the books, nothing in PayPal | Investigate |
 
+**What you see.** The headline and an AI-written summary of the month; a chart of where the month's sales went (your bank, still in PayPal, fees, refunds and chargebacks), built with AG Charts; the full ledger in AG Grid, with a tick on every record that ties out and a highlighter on every one that doesn't; and a review list where each exception gets a plain-English explanation and a suggested fix.
+
 **Approval before action.** Every action shows exactly what will happen first, including the PayPal API call and an editable note to the customer. Refunds use a deterministic `PayPal-Request-Id`, and Closeout refuses to move money twice for the same item. In the demo month every action is simulated.
 
 ## PayPal APIs used
@@ -101,8 +105,8 @@ app/
   actions.py     approval-gated actions
   store.py       sandbox test store: real checkouts plus the messy cases
   main.py        FastAPI app and JSON API
-static/          dashboard and test store (vanilla JS + AG Grid Community)
-scripts/         demo-month generator
+static/          dashboard, guided tour and test store (vanilla JS + AG Grid and AG Charts Community)
+scripts/         demo-month generator and demo-video recorder
 data/sample/     the demo month, in PayPal API format
 tests/           55 tests, no network needed
 ```
@@ -112,6 +116,10 @@ tests/           55 tests, no network needed
 ```bash
 pytest
 ```
+
+## Record the demo video
+
+The guided tour doubles as the demo video. With Closeout running, `python scripts/record_demo.py` plays `/?tour=video` in a 1920×1080 browser and saves `closeout-demo.mp4` (it needs `pip install playwright imageio-ffmpeg` and `python -m playwright install chromium`). The video version adds a live PayPal sandbox segment when sandbox keys are set; `--demo-only` skips it.
 
 ## Deploy
 
